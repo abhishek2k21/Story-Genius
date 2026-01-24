@@ -1,0 +1,10 @@
+{
+  "mode": "silent",
+  "cache_size": 5,
+  "thresholds": {
+    "auto_accept": 0.8,
+    "auto_reject": 0.35,
+    "fragile_limit": 3,
+    "risk_limit": 0.75
+  }
+}

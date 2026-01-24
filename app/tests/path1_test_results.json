@@ -1,0 +1,392 @@
+[
+  {
+    "input_idea": "Short-form curiosity hooks work best for kids educational content.",
+    "assumptions": {
+      "idea": "Short-form curiosity hooks work best for kids educational content.",
+      "assumptions": [
+        "The target audience will find this relevant",
+        "Current trends support this approach",
+        "Competition hasn't already saturated this space",
+        "Execution quality can match the concept"
+      ],
+      "fragile_assumptions": [
+        "Competition hasn't already saturated this space"
+      ],
+      "confidence_scores": {
+        "The target audience will find this relevant": 0.6,
+        "Current trends support this approach": 0.6,
+        "Competition hasn't already saturated this space": 0.6,
+        "Execution quality can match the concept": 0.6
+      }
+    },
+    "counters": {
+      "idea": "Short-form curiosity hooks work best for kids educational content.",
+      "counter_arguments": [
+        "It relies on shock value but lacks lasting substance",
+        "The novelty wears off quickly after first exposure",
+        "It may cause early drop-off despite initial clicks",
+        "Competitors can easily replicate the approach"
+      ],
+      "strongest_counter": "The execution complexity may not justify the marginal engagement increase",
+      "weaknesses_exposed": [
+        "Relies heavily on novelty",
+        "No sustainable competitive advantage"
+      ],
+      "survival_likelihood": 0.55
+    },
+    "second_order": {
+      "idea": "Short-form curiosity hooks work best for kids educational content.",
+      "second_order_effects": [
+        "Audience may feel manipulated over time",
+        "Retention improves short-term, trust drops long-term",
+        "Expectations escalate, making future content harder"
+      ],
+      "positive_effects": [
+        "Builds initial momentum and visibility"
+      ],
+      "negative_effects": [
+        "Creates unsustainable content treadmill",
+        "Trains audience to expect constant novelty"
+      ],
+      "long_term_risk_score": 0.65,
+      "audience_conditioning": "This approach trains audiences to expect escalating intensity, which becomes harder to maintain."
+    },
+    "depth_score": {
+      "idea": "Short-form curiosity hooks work best for kids educational content.",
+      "depth": 0.65,
+      "robustness": 0.6,
+      "novelty": 0.55,
+      "long_term_value": 0.7,
+      "overall_score": 0.64,
+      "rank_explanation": "Mock score: Moderate depth with reasonable long-term potential. Needs refinement for robustness."
+    },
+    "synthesis": {
+      "original_idea": "Short-form curiosity hooks work best for kids educational content.",
+      "refined_idea": "Short-form curiosity hooks work best for kids educational content. \u2014 refined with clearer value proposition and sustainable execution path.",
+      "improvements_made": [
+        "Added clearer value proposition",
+        "Included sustainability considerations",
+        "Addressed competitive differentiation"
+      ],
+      "assumptions_addressed": [
+        "Removed assumption about audience behavior"
+      ],
+      "counters_neutralized": [
+        "Added evidence against novelty-only criticism"
+      ],
+      "confidence_boost": 0.2
+    }
+  },
+  {
+    "input_idea": "Using extreme cliffhangers will maximize video retention.",
+    "assumptions": {
+      "idea": "Using extreme cliffhangers will maximize video retention.",
+      "assumptions": [
+        "The target audience will find this relevant",
+        "Current trends support this approach",
+        "Competition hasn't already saturated this space",
+        "Execution quality can match the concept"
+      ],
+      "fragile_assumptions": [
+        "Competition hasn't already saturated this space"
+      ],
+      "confidence_scores": {
+        "The target audience will find this relevant": 0.6,
+        "Current trends support this approach": 0.6,
+        "Competition hasn't already saturated this space": 0.6,
+        "Execution quality can match the concept": 0.6
+      }
+    },
+    "counters": {
+      "idea": "Using extreme cliffhangers will maximize video retention.",
+      "counter_arguments": [
+        "It relies on shock value but lacks lasting substance",
+        "The novelty wears off quickly after first exposure",
+        "It may cause early drop-off despite initial clicks",
+        "Competitors can easily replicate the approach"
+      ],
+      "strongest_counter": "The execution complexity may not justify the marginal engagement increase",
+      "weaknesses_exposed": [
+        "Relies heavily on novelty",
+        "No sustainable competitive advantage"
+      ],
+      "survival_likelihood": 0.55
+    },
+    "second_order": {
+      "idea": "Using extreme cliffhangers will maximize video retention.",
+      "second_order_effects": [
+        "Audience may feel manipulated over time",
+        "Retention improves short-term, trust drops long-term",
+        "Expectations escalate, making future content harder"
+      ],
+      "positive_effects": [
+        "Builds initial momentum and visibility"
+      ],
+      "negative_effects": [
+        "Creates unsustainable content treadmill",
+        "Trains audience to expect constant novelty"
+      ],
+      "long_term_risk_score": 0.65,
+      "audience_conditioning": "This approach trains audiences to expect escalating intensity, which becomes harder to maintain."
+    },
+    "depth_score": {
+      "idea": "Using extreme cliffhangers will maximize video retention.",
+      "depth": 0.65,
+      "robustness": 0.6,
+      "novelty": 0.55,
+      "long_term_value": 0.7,
+      "overall_score": 0.64,
+      "rank_explanation": "Mock score: Moderate depth with reasonable long-term potential. Needs refinement for robustness."
+    },
+    "synthesis": {
+      "original_idea": "Using extreme cliffhangers will maximize video retention.",
+      "refined_idea": "Using extreme cliffhangers will maximize video retention. \u2014 refined with clearer value proposition and sustainable execution path.",
+      "improvements_made": [
+        "Added clearer value proposition",
+        "Included sustainability considerations",
+        "Addressed competitive differentiation"
+      ],
+      "assumptions_addressed": [
+        "Removed assumption about audience behavior"
+      ],
+      "counters_neutralized": [
+        "Added evidence against novelty-only criticism"
+      ],
+      "confidence_boost": 0.2
+    }
+  },
+  {
+    "input_idea": "AI-generated voices are indistinguishable from human narration now.",
+    "assumptions": {
+      "idea": "AI-generated voices are indistinguishable from human narration now.",
+      "assumptions": [
+        "The target audience will find this relevant",
+        "Current trends support this approach",
+        "Competition hasn't already saturated this space",
+        "Execution quality can match the concept"
+      ],
+      "fragile_assumptions": [
+        "Competition hasn't already saturated this space"
+      ],
+      "confidence_scores": {
+        "The target audience will find this relevant": 0.6,
+        "Current trends support this approach": 0.6,
+        "Competition hasn't already saturated this space": 0.6,
+        "Execution quality can match the concept": 0.6
+      }
+    },
+    "counters": {
+      "idea": "AI-generated voices are indistinguishable from human narration now.",
+      "counter_arguments": [
+        "It relies on shock value but lacks lasting substance",
+        "The novelty wears off quickly after first exposure",
+        "It may cause early drop-off despite initial clicks",
+        "Competitors can easily replicate the approach"
+      ],
+      "strongest_counter": "The execution complexity may not justify the marginal engagement increase",
+      "weaknesses_exposed": [
+        "Relies heavily on novelty",
+        "No sustainable competitive advantage"
+      ],
+      "survival_likelihood": 0.55
+    },
+    "second_order": {
+      "idea": "AI-generated voices are indistinguishable from human narration now.",
+      "second_order_effects": [
+        "Audience may feel manipulated over time",
+        "Retention improves short-term, trust drops long-term",
+        "Expectations escalate, making future content harder"
+      ],
+      "positive_effects": [
+        "Builds initial momentum and visibility"
+      ],
+      "negative_effects": [
+        "Creates unsustainable content treadmill",
+        "Trains audience to expect constant novelty"
+      ],
+      "long_term_risk_score": 0.65,
+      "audience_conditioning": "This approach trains audiences to expect escalating intensity, which becomes harder to maintain."
+    },
+    "depth_score": {
+      "idea": "AI-generated voices are indistinguishable from human narration now.",
+      "depth": 0.65,
+      "robustness": 0.6,
+      "novelty": 0.55,
+      "long_term_value": 0.7,
+      "overall_score": 0.64,
+      "rank_explanation": "Mock score: Moderate depth with reasonable long-term potential. Needs refinement for robustness."
+    },
+    "synthesis": {
+      "original_idea": "AI-generated voices are indistinguishable from human narration now.",
+      "refined_idea": "AI-generated voices are indistinguishable from human narration now. \u2014 refined with clearer value proposition and sustainable execution path.",
+      "improvements_made": [
+        "Added clearer value proposition",
+        "Included sustainability considerations",
+        "Addressed competitive differentiation"
+      ],
+      "assumptions_addressed": [
+        "Removed assumption about audience behavior"
+      ],
+      "counters_neutralized": [
+        "Added evidence against novelty-only criticism"
+      ],
+      "confidence_boost": 0.2
+    }
+  },
+  {
+    "input_idea": "Posting 3 shorts per day is the optimal frequency for channel growth.",
+    "assumptions": {
+      "idea": "Posting 3 shorts per day is the optimal frequency for channel growth.",
+      "assumptions": [
+        "The target audience will find this relevant",
+        "Current trends support this approach",
+        "Competition hasn't already saturated this space",
+        "Execution quality can match the concept"
+      ],
+      "fragile_assumptions": [
+        "Competition hasn't already saturated this space"
+      ],
+      "confidence_scores": {
+        "The target audience will find this relevant": 0.6,
+        "Current trends support this approach": 0.6,
+        "Competition hasn't already saturated this space": 0.6,
+        "Execution quality can match the concept": 0.6
+      }
+    },
+    "counters": {
+      "idea": "Posting 3 shorts per day is the optimal frequency for channel growth.",
+      "counter_arguments": [
+        "It relies on shock value but lacks lasting substance",
+        "The novelty wears off quickly after first exposure",
+        "It may cause early drop-off despite initial clicks",
+        "Competitors can easily replicate the approach"
+      ],
+      "strongest_counter": "The execution complexity may not justify the marginal engagement increase",
+      "weaknesses_exposed": [
+        "Relies heavily on novelty",
+        "No sustainable competitive advantage"
+      ],
+      "survival_likelihood": 0.55
+    },
+    "second_order": {
+      "idea": "Posting 3 shorts per day is the optimal frequency for channel growth.",
+      "second_order_effects": [
+        "Audience may feel manipulated over time",
+        "Retention improves short-term, trust drops long-term",
+        "Expectations escalate, making future content harder"
+      ],
+      "positive_effects": [
+        "Builds initial momentum and visibility"
+      ],
+      "negative_effects": [
+        "Creates unsustainable content treadmill",
+        "Trains audience to expect constant novelty"
+      ],
+      "long_term_risk_score": 0.65,
+      "audience_conditioning": "This approach trains audiences to expect escalating intensity, which becomes harder to maintain."
+    },
+    "depth_score": {
+      "idea": "Posting 3 shorts per day is the optimal frequency for channel growth.",
+      "depth": 0.65,
+      "robustness": 0.6,
+      "novelty": 0.55,
+      "long_term_value": 0.7,
+      "overall_score": 0.64,
+      "rank_explanation": "Mock score: Moderate depth with reasonable long-term potential. Needs refinement for robustness."
+    },
+    "synthesis": {
+      "original_idea": "Posting 3 shorts per day is the optimal frequency for channel growth.",
+      "refined_idea": "Posting 3 shorts per day is the optimal frequency for channel growth. \u2014 refined with clearer value proposition and sustainable execution path.",
+      "improvements_made": [
+        "Added clearer value proposition",
+        "Included sustainability considerations",
+        "Addressed competitive differentiation"
+      ],
+      "assumptions_addressed": [
+        "Removed assumption about audience behavior"
+      ],
+      "counters_neutralized": [
+        "Added evidence against novelty-only criticism"
+      ],
+      "confidence_boost": 0.2
+    }
+  },
+  {
+    "input_idea": "Thumbnail faces with exaggerated expressions always get more clicks.",
+    "assumptions": {
+      "idea": "Thumbnail faces with exaggerated expressions always get more clicks.",
+      "assumptions": [
+        "The target audience will find this relevant",
+        "Current trends support this approach",
+        "Competition hasn't already saturated this space",
+        "Execution quality can match the concept"
+      ],
+      "fragile_assumptions": [
+        "Competition hasn't already saturated this space"
+      ],
+      "confidence_scores": {
+        "The target audience will find this relevant": 0.6,
+        "Current trends support this approach": 0.6,
+        "Competition hasn't already saturated this space": 0.6,
+        "Execution quality can match the concept": 0.6
+      }
+    },
+    "counters": {
+      "idea": "Thumbnail faces with exaggerated expressions always get more clicks.",
+      "counter_arguments": [
+        "It relies on shock value but lacks lasting substance",
+        "The novelty wears off quickly after first exposure",
+        "It may cause early drop-off despite initial clicks",
+        "Competitors can easily replicate the approach"
+      ],
+      "strongest_counter": "The execution complexity may not justify the marginal engagement increase",
+      "weaknesses_exposed": [
+        "Relies heavily on novelty",
+        "No sustainable competitive advantage"
+      ],
+      "survival_likelihood": 0.55
+    },
+    "second_order": {
+      "idea": "Thumbnail faces with exaggerated expressions always get more clicks.",
+      "second_order_effects": [
+        "Audience may feel manipulated over time",
+        "Retention improves short-term, trust drops long-term",
+        "Expectations escalate, making future content harder"
+      ],
+      "positive_effects": [
+        "Builds initial momentum and visibility"
+      ],
+      "negative_effects": [
+        "Creates unsustainable content treadmill",
+        "Trains audience to expect constant novelty"
+      ],
+      "long_term_risk_score": 0.65,
+      "audience_conditioning": "This approach trains audiences to expect escalating intensity, which becomes harder to maintain."
+    },
+    "depth_score": {
+      "idea": "Thumbnail faces with exaggerated expressions always get more clicks.",
+      "depth": 0.65,
+      "robustness": 0.6,
+      "novelty": 0.55,
+      "long_term_value": 0.7,
+      "overall_score": 0.64,
+      "rank_explanation": "Mock score: Moderate depth with reasonable long-term potential. Needs refinement for robustness."
+    },
+    "synthesis": {
+      "original_idea": "Thumbnail faces with exaggerated expressions always get more clicks.",
+      "refined_idea": "Thumbnail faces with exaggerated expressions always get more clicks. \u2014 refined with clearer value proposition and sustainable execution path.",
+      "improvements_made": [
+        "Added clearer value proposition",
+        "Included sustainability considerations",
+        "Addressed competitive differentiation"
+      ],
+      "assumptions_addressed": [
+        "Removed assumption about audience behavior"
+      ],
+      "counters_neutralized": [
+        "Added evidence against novelty-only criticism"
+      ],
+      "confidence_boost": 0.2
+    }
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "job_id": "e80ce175-9237-422a-9502-2908b83c1035",
+    "config": {
+      "platform": "youtube_shorts",
+      "audience": "kids_india",
+      "genre": "kids",
+      "duration": 30
+    },
+    "success": false,
+    "score": null,
+    "retries": 0
+  },
+  {
+    "job_id": "8d2dedfa-fb22-43af-b428-d09382cfa628",
+    "config": {
+      "platform": "youtube_shorts",
+      "audience": "genz_us",
+      "genre": "facts",
+      "duration": 30
+    },
+    "success": true,
+    "score": 0.71,
+    "retries": 0
+  },
+  {
+    "job_id": "7060c0c5-63b9-4aa8-a93f-e79fc8574b90",
+    "config": {
+      "platform": "instagram_reels",
+      "audience": "motivation",
+      "genre": "success",
+      "duration": 30
+    },
+    "success": true,
+    "score": 0.76,
+    "retries": 0
+  },
+  {
+    "job_id": "47609f19-5e2f-4db8-be18-69317891292a",
+    "config": {
+      "platform": "tiktok",
+      "audience": "genz",
+      "genre": "thriller",
+      "duration": 30
+    },
+    "success": true,
+    "score": 0.95,
+    "retries": 0
+  },
+  {
+    "job_id": "419350f0-4a6e-45d7-b178-357b7c0e1436",
+    "config": {
+      "platform": "youtube_shorts",
+      "audience": "children",
+      "genre": "bedtime",
+      "duration": 30
+    },
+    "success": true,
+    "score": 0.71,
+    "retries": 0
+  }
+]

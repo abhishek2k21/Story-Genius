@@ -1,0 +1,34 @@
+{
+  "test_idea": "How social media is changing your brain",
+  "config_a": {
+    "script": "Social media rewires your brain's reward system. Constant notifications trigger dopamine release, reinforcing habitual checking, like a slot machine. Studies show decreased gray matter in regions associated with attention and decision-making. This isn't about willpower; it's neurological adaptation. Expect increased impulsivity and a shorter attention span. The algorithm *is* the experiment.",
+    "segments": [
+      {
+        "text": "Social media rewires your brain's reward system. Constant notifications trigger dopamine release, reinforcing habitual checking, like a slot machine.",
+        "duration": 10,
+        "tone": "neutral"
+      },
+      {
+        "text": "Studies show decreased gray matter in regions associated with attention and decision-making.",
+        "duration": 7,
+        "tone": "neutral"
+      },
+      {
+        "text": "This isn't about willpower; it's neurological adaptation. Expect increased impulsivity and a shorter attention span.",
+        "duration": 8,
+        "tone": "neutral"
+      },
+      {
+        "text": "The algorithm *is* the experiment.",
+        "duration": 5,
+        "tone": "neutral"
+      }
+    ],
+    "content_mode": "commentary",
+    "duration": 30,
+    "baseline": "general_adult",
+    "tone": "neutral",
+    "language": "en"
+  },
+  "config_b": {
+    "script": 

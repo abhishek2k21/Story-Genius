@@ -1,0 +1,70 @@
+{
+  "batch_metrics": {
+    "total_jobs": 5,
+    "successful_jobs": 5,
+    "failed_jobs": 0,
+    "avg_score": 0.772,
+    "avg_duration_sec": 21.45,
+    "total_retries": 0,
+    "total_time_sec": 107.26,
+    "estimated_cost_usd": 0.052
+  },
+  "job_metrics": [
+    {
+      "job_id": "f729f724-59bd-4e57-8357-a17a45467a0f",
+      "success": true,
+      "score": 0.8,
+      "retries": 0,
+      "duration_sec": 25.96,
+      "persona": "",
+      "visual_style": "",
+      "hook_type": "",
+      "error": ""
+    },
+    {
+      "job_id": "a41d4135-5219-4fed-8170-a22b8d07bf33",
+      "success": true,
+      "score": 0.69,
+      "retries": 0,
+      "duration_sec": 24.35,
+      "persona": "",
+      "visual_style": "",
+      "hook_type": "",
+      "error": ""
+    },
+    {
+      "job_id": "c0a63294-5ad2-4133-84c6-f5053e079725",
+      "success": true,
+      "score": 0.76,
+      "retries": 0,
+      "duration_sec": 24.77,
+      "persona": "",
+      "visual_style": "",
+      "hook_type": "",
+      "error": ""
+    },
+    {
+      "job_id": "35ce0446-dde3-4de0-a117-52745f501bf8",
+      "success": true,
+      "score": 0.88,
+      "retries": 0,
+      "duration_sec": 15.52,
+      "persona": "",
+      "visual_style": "",
+      "hook_type": "",
+      "error": ""
+    },
+    {
+      "job_id": "c37a2814-0d1f-4b50-bb07-b887cad99387",
+      "success": true,
+      "score": 0.73,
+      "retries": 0,
+      "duration_sec": 16.65,
+      "persona": "",
+      "visual_style": "",
+      "hook_type": "",
+      "error": ""
+    }
+  ],
+  "timestamp": "2026-01-24T00:25:09.094263"
+}

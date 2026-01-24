@@ -1,0 +1,117 @@
+{
+  "test_idea": "How technology is changing our attention span",
+  "adult_en": {
+    "script": "Remember sitting through a movie without checking your phone? Good luck with that now. Tech didn't *shrink* our attention spans. It *re-prioritized* them. Every notification, every like, every endless scroll is a micro-reward, a dopamine hit engineered to be more immediately gratifying than, say, understanding the nuances of 19th-century Russian literature. It's not that we *can't* focus; it's that we're constantly presented with options that require *less* focus for *more* perceived reward. The takeaway? Attention isn't dwindling; it's being aggressively auctioned off, one ping at a time.",
+    "segments": [
+      {
+        "text": "Remember sitting through a movie without checking your phone? Good luck with that now.",
+        "duration": 5,
+        "tone": "observational"
+      },
+      {
+        "text": "Tech didn't *shrink* our attention spans. It *re-prioritized* them.",
+        "duration": 4,
+        "tone": "assertive"
+      },
+      {
+        "text": "Every notification, every like, every endless scroll is a micro-reward, a dopamine hit engineered to be more immediately gratifying than, say, understanding the nuances of 19th-century Russian literature.",
+        "duration": 10,
+        "tone": "analytical"
+      },
+      {
+        "text": "It's not that we *can't* focus; it's that we're constantly presented with options that require *less* focus for *more* perceived reward.",
+        "duration": 6,
+        "tone": "explanatory"
+      },
+      {
+        "text": "The takeaway? Attention isn't dwindling; it's being aggressively auctioned off, one ping at a time.",
+        "duration": 5,
+        "tone": "conclusive"
+      }
+    ],
+    "contract": {
+      "audience": "general_adult",
+      "intent": "entertain",
+      "mode": "commentary",
+      "tone": "neutral",
+      "language": "en"
+    },
+    "model": "gemini-2.0-flash-001"
+  },
+  "adult_hi": {
+    "script": "ध्यान भंग? टेक्नोलॉजी का कमाल, या हम खुद ही दोषी? 30 सेकंड में समझो। पहले, किताबें। फिर, रेडियो। अब, TikTok। हर पीढ़ी चिल्लाई, 'ये बच्चे बिगड़ गए!' असली मुद्दा ये है: दिमाग़ बदल रहा है, टेक्नोलॉजी नहीं। फोकस कम नहीं हुआ, बस बट गया। मल्टीटास्किंग का युग है, दोस्त। अब, इस वीडियो को लाइक करो, शेयर करो, और फिर अगले पर जंप करो। यही सच्चाई है।",
+    "segments": [
+      {
+        "text": "ध्यान भंग? टेक्नोलॉजी का कमाल, या हम खुद ही दोषी? 30 सेकंड में समझो।",
+        "duration": 5,
+        "tone": "provocative"
+      },
+      {
+        "text": "पहले, किताबें। फिर, रेडियो। अब, TikTok। हर पीढ़ी चिल्लाई, 'ये बच्चे बिगड़ गए!'",
+        "duration": 7,
+        "tone": "historical"
+      },
+      {
+        "text": "असली मुद्दा ये है: दिमाग़ बदल रहा है, टेक्नोलॉजी नहीं।",
+        "duration": 6,
+        "tone": "analytical"
+      },
+      {
+        "text": "फोकस कम नहीं हुआ, बस बट गया। मल्टीटास्किंग का युग है, दोस्त।",
+        "duration": 7,
+        "tone": "observational"
+      },
+      {
+        "text": "अब, इस वीडियो को लाइक करो, शेयर करो, और फिर अगले पर जंप करो। यही सच्चाई है।",
+        "duration": 5,
+        "tone": "ironic"
+      }
+    ],
+    "contract": {
+      "audience": "general_adult",
+      "intent": "entertain",
+      "mode": "commentary",
+      "tone": "bold",
+      "language": "hi"
+    },
+    "model": "gemini-2.0-flash-001"
+  },
+  "kids_en": {
+    "script": "Once upon a time, in a bright and colorful town, lived a little robot named Zip. Zip loved learning new things, but he had a problem: he could only focus for a few seconds! He'd start reading about dinosaurs, then see a shiny button and forget all about the T-Rex. One day, Zip's friend, a wise old owl named Professor Hoot, showed him a trick. \"Try focusing on one thing at a time, Zip,\" Professor Hoot advised. \"Like building a tower, one block at a time.\" Zip tried it! He started with one block, then another, and slowly, he built a magnificent tower. He realized that focusing made learning much more fun and rewarding. From that day on, Zip practiced focusing, one block, one page, one dinosaur at a time. And you can too!",
+    "segments": [
+      {
+        "text": "Once upon a time, in a bright and colorful town, lived a little robot named Zip. Zip loved learning new things, but he had a problem: he could only focus for a few seconds!",
+        "duration": 8,
+        "tone": "warm and engaging"
+      },
+      {
+        "text": "He'd start reading about dinosaurs, then see a shiny button and forget all about the T-Rex.",
+        "duration": 6,
+        "tone": "warm and engaging"
+      },
+      {
+        "text": "One day, Zip's friend, a wise old owl named Professor Hoot, showed him a trick. \"Try focusing on one thing at a time, Zip,\" Professor Hoot advised. \"Like building a tower, one block at a time.\"",
+        "duration": 9,
+        "tone": "neutral and educational"
+      },
+      {
+        "text": "Zip tried it! He started with one block, then another, and slowly, he built a magnificent tower. He realized that focusing made learning much more fun and rewarding.",
+        "duration": 5,
+        "tone": "warm and engaging"
+      },
+      {
+        "text": "From that day on, Zip practiced focusing, one block, one page, one dinosaur at a time. And you can too!",
+        "duration": 2,
+        "tone": "warm and engaging"
+      }
+    ],
+    "contract": {
+      "audience": "kids",
+      "intent": "educate",
+      "mode": "story",
+      "tone": "neutral",
+      "language": "en"
+    },
+    "model": "gemini-2.0-flash-001"
+  }
+}

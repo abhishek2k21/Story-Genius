@@ -1,0 +1,135 @@
+{
+  "test_idea": "Why smartphones are changing how we think",
+  "config_a_kids": {
+    "audience": "kids_india",
+    "mode": "story",
+    "script": {
+      "segments": [
+        {
+          "text": "\u0905\u0930\u0947 \u092c\u091a\u094d\u091a\u094b\u0902! \u0915\u094d\u092f\u093e \u0924\u0941\u092e\u0928\u0947 \u0915\u092d\u0940 \u0938\u094b\u091a\u093e \u0939\u0948, \u092f\u0947 \u091c\u094b \u0924\u0941\u092e\u094d\u0939\u093e\u0930\u093e \u091c\u093e\u0926\u0942 \u0915\u093e \u0921\u093f\u092c\u094d\u092c\u093e \u0939\u0948 - \u0924\u0941\u092e\u094d\u0939\u093e\u0930\u093e \u095e\u094b\u0928 - \u092f\u0947 \u0915\u094d\u092f\u093e-\u0915\u094d\u092f\u093e \u0915\u0930 \u0938\u0915\u0924\u093e \u0939\u0948?",
+          "duration_seconds": 6,
+          "visual_direction": "Open on a wide shot of kids playing with smartphones in a park. Camera zooms in on a girl looking curiously at her phone.",
+          "tone": "Curious, engaging"
+        },
+        {
+          "text": "\u090f\u0915 \u0938\u092e\u092f \u0915\u0940 \u092c\u093e\u0924 \u0939\u0948, \u091a\u093f\u0902\u091f\u0942 \u0915\u094b \u092a\u0939\u093e\u095c\u0947 \u092f\u093e\u0926 \u0915\u0930\u0928\u0947 \u092e\u0947\u0902 \u092c\u0939\u0941\u0924 \u0926\u093f\u0915\u094d\u0915\u0924 \u0939\u094b\u0924\u0940 \u0925\u0940! ",
+          "duration_seconds": 5,
+          "visual_direction": "Animated sequence showing a cartoon boy (Chintu) struggling with multiplication tables, looking frustrated.",
+          "tone": "Slightly humorous, empathetic"
+        },
+        {
+          "text": "\u092b\u093f\u0930 \u0909\u0938\u0947 \u090f\u0915 \u091c\u093e\u0926\u0941\u0908 \u0910\u092a \u092e\u093f\u0932\u093e! \u0909\u0938 \u0910\u092a \u0928\u0947 \u0909\u0938\u0947 \u0916\u0947\u0932-\u0916\u0947\u0932 \u092e\u0947\u0902 \u0938\u092c \u0938\u093f\u0916\u093e \u0926\u093f\u092f\u093e!",
+          "duration_seconds": 5,
+          "visual_direction": "Chintu discovers a brightly colored, gamified math app on his phone. He starts playing and smiling.",
+          "tone": "Hopeful, exciting"
+        },
+        {
+          "text": "\u0932\u0947\u0915\u093f\u0928 \u092f\u093e\u0926 \u0930\u0916\u0928\u093e, \u0939\u0930 \u091a\u0940\u095b \u0915\u0940 \u0926\u094b \u092a\u0939\u0932\u0942 \u0939\u094b\u0924\u0947 \u0939\u0948\u0902! \u095e\u094b\u0928 \u0915\u0940 \u0926\u0941\u0928\u093f\u092f\u093e \u092e\u0947\u0902 \u0938\u091a \u0914\u0930 \u091d\u0942\u0920 \u0926\u094b\u0928\u094b\u0902 \u091b\u093f\u092a\u0947 \u0939\u0948\u0902!",
+          "duration_seconds": 6,
+          "visual_direction": "Transition to a shot of a news article on Chintu's phone screen with a misleading headline. A question mark appears over his head.",
+          "tone": "Warning, cautious"
+        },
+        {
+          "text": "\u0907\u0938\u0932\u093f\u090f, \u0905\u092a\u0928\u0947 \u092e\u092e\u094d\u092e\u0940-\u092a\u093e\u092a\u093e \u0914\u0930 \u091f\u0940\u091a\u0930 \u0938\u0947 \u092a\u0942\u091b\u094b! \u0935\u0947 \u0924\u0941\u092e\u094d\u0939\u0947\u0902 \u092c\u0924\u093e\u090f\u0902\u0917\u0947 \u0915\u093f \u0915\u0948\u0938\u0947 \u095e\u094b\u0928 \u0915\u093e \u0938\u0939\u0940 \u0907\u0938\u094d\u0924\u0947\u092e\u093e\u0932 \u0915\u0930\u0928\u093e \u0939\u0948, \u0924\u093e\u0915\u093f \u0924\u0941\u092e \u0939\u092e\u0947\u0936\u093e \u0938\u0939\u0940 \u0930\u093e\u0939 \u092a\u0930 \u0930\u0939\u094b!",
+          "duration_seconds": 8,
+          "visual_direction": "Chintu is now talking to his mother and teacher, looking attentive. They are smiling and explaining something to him.",
+          "tone": "Reassuring, wise"
+        }
+      ],
+      "total_duration": 30,
+      "language": "hi",
+      "mode": "story",
+      "persona": null
+    }
+  },
+  "config_b_comedy": {
+    "audience": "adult_us",
+    "mode": "comedy",
+    "script": {
+      "segments": [
+        {
+          "text": "Smartphones: tiny rectangles that replaced our brains. Progress!",
+          "duration_seconds": 5,
+          "visual_direction": "Close up on a hand scrolling endlessly on a phone. Sarcastic chyrons: \"Progress!\"",
+          "tone": "Deadpan"
+        },
+        {
+          "text": "Remember when you remembered phone numbers? Now I can't recall what I ate for lunch...yesterday.",
+          "duration_seconds": 6,
+          "visual_direction": "Cut to a person staring blankly into space, mouth slightly open. Zoom in on their eyes.",
+          "tone": "Sarcastic, slightly bewildered"
+        },
+        {
+          "text": "Attention span? It's evolved. Now I can doomscroll for 8 hours straight. Efficiency!",
+          "duration_seconds": 6,
+          "visual_direction": "Split screen: One side, someone struggling to read a book. The other, someone furiously scrolling through TikTok with glazed-over eyes.",
+          "tone": "Deadpan, ironic"
+        },
+        {
+          "text": "Deep work? What's that? Sounds like something a robot does before it becomes self-aware and enslaves us.",
+          "duration_seconds": 6,
+          "visual_direction": "A Roomba bumps harmlessly into a wall, then slowly turns to face the camera with a red light emanating from its 'eye'.",
+          "tone": "Dry, slightly ominous"
+        },
+        {
+          "text": "So, are phones making us dumber? Maybe. But at least we're all dumb...together.",
+          "duration_seconds": 5,
+          "visual_direction": "Zoom out to show a crowd of people all staring at their phones, bumping into each other. End on a black screen with white text: \"Misery loves company.\"",
+          "tone": "Deadpan, subtly nihilistic"
+        }
+      ],
+      "total_duration": 28,
+      "language": "en",
+      "mode": "comedy",
+      "persona": "dry_comedian"
+    }
+  },
+  "config_c_provoke": {
+    "audience": "genz_global",
+    "mode": "commentary",
+    "script": {
+      "segments": [
+        {
+          "text": "Your brain's been hijacked. By TikTok.",
+          "duration_seconds": 4,
+          "visual_direction": "Rapid cuts of addictive app interfaces: TikTok, Instagram Reels, endless scrolling. Overlaid text: 'ATTENTION HIJACKED'",
+          "tone": "Incendiary, slightly aggressive"
+        },
+        {
+          "text": "Notifications are dopamine hits. Algorithmic feeds? Curated addiction.",
+          "duration_seconds": 5,
+          "visual_direction": "Close-up of a phone screen lighting up with a notification, then dissolving into code and algorithms.",
+          "tone": "Analytical, detached"
+        },
+        {
+          "text": "Sustained focus? Critical thinking? Boomer skills. We're optimizing for instant gratification.",
+          "duration_seconds": 6,
+          "visual_direction": "Split screen: One side shows someone intensely focused on a complex task (writing code, solving a puzzle). The other shows someone mindlessly scrolling through their phone. The focused side gradually fades to gray.",
+          "tone": "Ironic, cynical"
+        },
+        {
+          "text": "Intelligence isn't declining. Just...reallocated. From deep work to shallow takes.",
+          "duration_seconds": 5,
+          "visual_direction": "Animated graph showing a steep decline in 'sustained attention' and a sharp increase in 'reactive engagement'.",
+          "tone": "Matter-of-fact, clinical"
+        },
+        {
+          "text": "So enjoy your brain candy. But don't pretend you're not paying the price.",
+          "duration_seconds": 5,
+          "visual_direction": "A hand reaching for a phone, with a faint image of a brain scan showing reduced activity in the prefrontal cortex superimposed on the phone screen.",
+          "tone": "Warning, slightly condescending"
+        },
+        {
+          "text": "And if you think I'm wrong? Prove it. By reading a book.",
+          "duration_seconds": 5,
+          "visual_direction": "A single shot of a thick, imposing book (e.g., 'Principia Mathematica') on a desk. The camera slowly zooms in.",
+          "tone": "Challenging, provocative"
+        }
+      ],
+      "total_duration": 30,
+      "language": "en",
+      "mode": "commentary",
+      "persona": "sharp_analyst"
+    }
+  }
+}
