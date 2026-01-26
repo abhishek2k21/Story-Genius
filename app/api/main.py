@@ -61,6 +61,10 @@ app.include_router(batch_router)
 from app.api.template_routes import router as template_router
 app.include_router(template_router)
 
+# Include Admin Routes (Week 26 - Reliability)
+from app.api.admin_routes import router as admin_router
+app.include_router(admin_router)
+
 
 @app.on_event("startup")
 async def startup_event():
