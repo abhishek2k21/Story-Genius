@@ -57,6 +57,10 @@ app.include_router(video_router)
 from app.api.batch_routes import router as batch_router
 app.include_router(batch_router)
 
+# Include Template Routes (Week 25)
+from app.api.template_routes import router as template_router
+app.include_router(template_router)
+
 
 @app.on_event("startup")
 async def startup_event():
