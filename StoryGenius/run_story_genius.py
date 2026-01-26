@@ -51,7 +51,7 @@ def main():
     from story_genius.engines.universal_engine import UniversalStoryEngine
     
     voice = EdgeTTSVoiceModule(selected_genre.default_voice)
-    engine = UniversalStoryEngine(llm, voice, selected_genre, duration_scenes=scenes)
+    engine = UniversalStoryEngine(llm, voice, selected_genre, duration_scenes=scenes, topic=topic)
     
     # Run
     print(f"Generative Engine Active: {selected_genre.name} | {scenes} Scenes | {topic}")

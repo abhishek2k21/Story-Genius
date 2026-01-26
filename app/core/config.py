@@ -41,6 +41,16 @@ class Settings(BaseSettings):
     CRITIC_RETRY_THRESHOLD: float = 0.6
     MAX_RETRIES: int = 2
     
+    # JWT Authentication Settings
+    SECRET_KEY: str = "your-secret-key-change-in-production"  # Generate with: openssl rand -hex 32
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    
+    # Stripe Settings (placeholders)
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_PUBLISHABLE_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

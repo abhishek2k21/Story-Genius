@@ -9,13 +9,14 @@ import os
 from moviepy import AudioFileClip, VideoFileClip, concatenate_videoclips
 
 class UniversalStoryEngine(AbstractContentEngine):
-    def __init__(self, llm, voiceModule: VoiceModule, genre_config: GenreConfig, duration_scenes: int = 6):
+    def __init__(self, llm, voiceModule: VoiceModule, genre_config: GenreConfig, duration_scenes: int = 6, topic: str = ""):
         super().__init__(content_type=f"universal_{genre_config.id}", voiceModule=voiceModule)
         self.llm = llm
         self.veo = VeoWrapper()
         self.storyboard = StoryBoard()
         self.config = genre_config
         self.target_scenes = duration_scenes
+        self.topic = topic  # Store the user's topic
         
         # Override output path suffix
         self.content_type = genre_config.output_suffix
@@ -32,17 +33,22 @@ class UniversalStoryEngine(AbstractContentEngine):
         # Determine total duration
         total_seconds = self.target_scenes * 10
         
+        # Build topic instruction
+        topic_instruction = f"\nTOPIC: {self.topic}\nCreate content specifically about: {self.topic}\n" if self.topic else ""
+        
         prompt = f"""
         Create a {total_seconds}-second video script.
         Genre: {self.config.name}
         Style: {self.config.description}
-        
+        {topic_instruction}
         Task: {self.config.llm_prompt_style}
+        
+        IMPORTANT: The story MUST be about "{self.topic}". Every scene should relate to this topic.
         
         Break it down into {self.target_scenes} sequential scenes.
         For each scene, provide:
         1. 'script': The narrator's line (Keep it SHORT, max 15 words, approx 5-7 seconds).
-        2. 'visual': A detailed visual description for AI video generation.
+        2. 'visual': A detailed visual description for AI video generation. MUST include the main subject ({self.topic}).
         
         Output valid JSON format:
         [
