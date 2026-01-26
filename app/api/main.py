@@ -49,6 +49,14 @@ app.include_router(analytics_router, prefix="/v1")
 from app.api.auth_routes import router as auth_router
 app.include_router(auth_router)
 
+# Include Video Format Routes (Week 23)
+from app.api.video_routes import router as video_router
+app.include_router(video_router)
+
+# Include Batch Generation Routes (Week 24)
+from app.api.batch_routes import router as batch_router
+app.include_router(batch_router)
+
 
 @app.on_event("startup")
 async def startup_event():
