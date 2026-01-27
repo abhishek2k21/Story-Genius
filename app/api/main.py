@@ -73,6 +73,10 @@ app.include_router(engine_router)
 from app.api.text_routes import router as text_router
 app.include_router(text_router)
 
+# Include Pacing Routes (Week 29)
+from app.api.pacing_routes import router as pacing_router
+app.include_router(pacing_router)
+
 
 @app.on_event("startup")
 async def startup_event():
