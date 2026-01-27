@@ -85,6 +85,10 @@ app.include_router(thumbnail_router)
 from app.api.observability_routes import router as observability_router
 app.include_router(observability_router)
 
+# Include Auth Routes (Week 32)
+from app.api.auth_routes import router as auth_router
+app.include_router(auth_router)
+
 
 @app.on_event("startup")
 async def startup_event():

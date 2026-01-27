@@ -1,1 +1,1 @@
-# Authentication module
+# Authentication module for user management and security
