@@ -109,6 +109,10 @@ app.include_router(caption_router)
 from app.api.schedule_routes import router as schedule_router
 app.include_router(schedule_router)
 
+# Include Export Routes (Week 38 - FINAL)
+from app.api.export_routes import router as export_router
+app.include_router(export_router)
+
 
 @app.on_event("startup")
 async def startup_event():
