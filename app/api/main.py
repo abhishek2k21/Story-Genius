@@ -93,6 +93,10 @@ app.include_router(auth_router)
 from app.api.asset_routes import router as asset_router
 app.include_router(asset_router)
 
+# Include Project Organization Routes (Week 34)
+from app.api.project_org_routes import router as project_org_router
+app.include_router(project_org_router)
+
 
 @app.on_event("startup")
 async def startup_event():
