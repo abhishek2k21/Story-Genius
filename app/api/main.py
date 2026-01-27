@@ -97,6 +97,10 @@ app.include_router(asset_router)
 from app.api.project_org_routes import router as project_org_router
 app.include_router(project_org_router)
 
+# Include Variation Routes (Week 35)
+from app.api.variation_routes import router as variation_router
+app.include_router(variation_router)
+
 
 @app.on_event("startup")
 async def startup_event():
