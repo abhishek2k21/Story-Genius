@@ -69,6 +69,10 @@ app.include_router(admin_router)
 from app.api.engine_routes import router as engine_router
 app.include_router(engine_router)
 
+# Include Text Overlay Routes (Week 28)
+from app.api.text_routes import router as text_router
+app.include_router(text_router)
+
 
 @app.on_event("startup")
 async def startup_event():
