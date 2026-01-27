@@ -77,6 +77,10 @@ app.include_router(text_router)
 from app.api.pacing_routes import router as pacing_router
 app.include_router(pacing_router)
 
+# Include Thumbnail Routes (Week 30)
+from app.api.thumbnail_routes import router as thumbnail_router
+app.include_router(thumbnail_router)
+
 
 @app.on_event("startup")
 async def startup_event():
