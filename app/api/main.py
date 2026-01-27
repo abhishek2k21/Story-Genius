@@ -65,6 +65,10 @@ app.include_router(template_router)
 from app.api.admin_routes import router as admin_router
 app.include_router(admin_router)
 
+# Include Engine Routes (Week 27)
+from app.api.engine_routes import router as engine_router
+app.include_router(engine_router)
+
 
 @app.on_event("startup")
 async def startup_event():
