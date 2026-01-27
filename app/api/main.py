@@ -101,6 +101,10 @@ app.include_router(project_org_router)
 from app.api.variation_routes import router as variation_router
 app.include_router(variation_router)
 
+# Include Caption Routes (Week 36)
+from app.api.caption_routes import router as caption_router
+app.include_router(caption_router)
+
 
 @app.on_event("startup")
 async def startup_event():
