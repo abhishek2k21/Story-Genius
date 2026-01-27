@@ -81,6 +81,10 @@ app.include_router(pacing_router)
 from app.api.thumbnail_routes import router as thumbnail_router
 app.include_router(thumbnail_router)
 
+# Include Observability Routes (Week 31)
+from app.api.observability_routes import router as observability_router
+app.include_router(observability_router)
+
 
 @app.on_event("startup")
 async def startup_event():
