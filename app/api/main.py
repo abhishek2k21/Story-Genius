@@ -89,6 +89,10 @@ app.include_router(observability_router)
 from app.api.auth_routes import router as auth_router
 app.include_router(auth_router)
 
+# Include Asset Routes (Week 33)
+from app.api.asset_routes import router as asset_router
+app.include_router(asset_router)
+
 
 @app.on_event("startup")
 async def startup_event():
