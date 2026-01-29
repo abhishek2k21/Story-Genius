@@ -282,11 +282,15 @@ class OrchestratorService:
                 break
             
             # 6. Generate media assets
-            job_logger.step(5, 6, "Generating audio (with Persona)...")
+            job_logger.step(5, 6, "Generating audio & video...")
             # Set voice based on persona
             self.audio_service.set_voice(story_adapter.persona.voice_id)
             self.generate_scene_assets(story.scenes, job_id)
             
+            # Generate final video (Veo + Stitching)
+            video_path = self.video_service.create_shorts_video(story.scenes, job_id, style_prefix="cinematic, 4k")
+            self.save_video(job_id, video_path, story.total_duration)
+
             # 7. Save story and complete
             job_logger.step(6, 6, "Saving results...")
             self.save_story(story)

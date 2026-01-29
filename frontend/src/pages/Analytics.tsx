@@ -66,7 +66,7 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {stats?.top_videos?.map((video: VideoPerformance, idx: number) => (
+                        {Array.isArray(stats?.top_videos) && stats.top_videos.map((video: VideoPerformance, idx: number) => (
                             <VideoRow key={idx} video={video} index={idx} />
                         ))}
                     </div>

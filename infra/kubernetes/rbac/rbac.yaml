@@ -1,0 +1,151 @@
+# Kubernetes RBAC Configuration
+# Implements least-privilege access control
+
+---
+# Service Account for API Backend
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api-service-account
+  namespace: production
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/yt-video-creator-api-role
+
+---
+# Service Account for Workers
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: worker-service-account
+  namespace: production
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/yt-video-creator-worker-role
+
+---
+# Role for API (namespace-scoped permissions)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: api-role
+  namespace: production
+rules:
+# Allow reading secrets and configmaps
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list"]
+  
+# Allow watching own pods
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+  
+# Allow reading services for service discovery
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list"]
+
+---
+# Role for Workers (extended permissions for job processing)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: worker-role
+  namespace: production
+rules:
+# Read secrets and configmaps
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list"]
+  
+# Manage pods (for dynamic worker spawning)
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch", "create", "delete"]
+  
+# Read services
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list"]
+
+---
+# RoleBinding for API
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: api-role-binding
+  namespace: production
+subjects:
+- kind: ServiceAccount
+  name: api-service-account
+  namespace: production
+roleRef:
+  kind: Role
+  name: api-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# RoleBinding for Workers
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: worker-role-binding
+  namespace: production
+subjects:
+- kind: ServiceAccount
+  name: worker-service-account
+  namespace: production
+roleRef:
+  kind: Role
+  name: worker-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ClusterRole for monitoring (read-only cluster-wide)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-reader
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+  
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["get", "list", "watch"]
+  
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["*"]
+  verbs: ["get", "list"]
+
+---
+# Service Account for Prometheus
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-service-account
+  namespace: monitoring
+
+---
+# ClusterRoleBinding for Prometheus
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-monitoring-binding
+subjects:
+- kind: ServiceAccount
+  name: prometheus-service-account
+  namespace: monitoring
+roleRef:
+  kind: ClusterRole
+  name: monitoring-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Deny all by default (template for new namespaces)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deny-all
+  namespace: production
+rules: []  # No permissions

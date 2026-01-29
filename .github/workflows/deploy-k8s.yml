@@ -1,0 +1,132 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Image"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  AWS_REGION: us-east-1
+  CLUSTER_NAME: yt-video-creator-prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    environment:
+      name: ${{ inputs.environment || 'staging' }}
+      url: https://api.ytvideocreator.com
+    
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+      
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.13.0'
+      
+      - name: Determine namespace
+        id: namespace
+        run: |
+          if [ "${{ inputs.environment }}" == "production" ]; then
+            echo "namespace=production" >> $GITHUB_OUTPUT
+          else
+            echo "namespace=staging" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install app-backend ./infra/helm/app-backend \
+            --namespace ${{ steps.namespace.outputs.namespace }} \
+            --create-namespace \
+            --set image.tag=${{ github.sha }} \
+            --set namespace=${{ steps.namespace.outputs.namespace }} \
+            --wait \
+            --timeout 10m
+      
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/app-backend-app-backend \
+            -n ${{ steps.namespace.outputs.namespace }} \
+            --timeout=5m
+      
+      - name: Run smoke tests
+        run: |
+          # Get the service URL
+          NAMESPACE=${{ steps.namespace.outputs.namespace }}
+          SERVICE_URL=$(kubectl get ingress app-backend-app-backend -n $NAMESPACE -o jsonpath='{.spec.rules[0].host}')
+          
+          # Wait for service to be ready
+          sleep 30
+          
+          # Test health endpoint
+          curl -f https://$SERVICE_URL/health || exit 1
+          
+          echo "Smoke tests passed!"
+      
+      - name: Notify Slack on success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "✅ Deployed to ${{ steps.namespace.outputs.namespace }} successfully!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ *Deployment Successful*\n*Environment:* ${{ steps.namespace.outputs.namespace }}\n*Commit:* ${{ github.sha }}\n*Author:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+      
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "❌ Deployment to ${{ steps.namespace.outputs.namespace }} failed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ *Deployment Failed*\n*Environment:* ${{ steps.namespace.outputs.namespace }}\n*Commit:* ${{ github.sha }}\n*Author:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }

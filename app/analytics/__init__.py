@@ -1,4 +1,18 @@
-"""Analytics package."""
-from app.analytics.performance import PerformanceAnalytics, VideoPerformance, get_analytics
+"""
+Analytics Module Initialization
+"""
+from app.analytics.service import (
+    AnalyticsMetrics,
+    VideoPerformance,
+    TimeseriesData,
+    AnalyticsService,
+    analytics_service
+)
 
-__all__ = ["PerformanceAnalytics", "VideoPerformance", "get_analytics"]
+__all__ = [
+    'AnalyticsMetrics',
+    'VideoPerformance',
+    'TimeseriesData',
+    'AnalyticsService',
+    'analytics_service'
+]

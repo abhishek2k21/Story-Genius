@@ -1,26 +1,54 @@
-# Dockerfile for FastAPI Backend
-FROM python:3.11-slim
+# Multi-stage build for optimized container size
+FROM python:3.11-slim as builder
 
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-# ffmpeg is required for video processing
-RUN apt-get update && apt-get install -y \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies to user directory
+RUN pip install --user --no-cache-dir --no-warn-script-location -r requirements.txt
+
+# Final stage
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libsm6 \
     libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage Docker cache
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy Python dependencies from builder
+COPY --from=builder /root/.local /root/.local
 
 # Copy application code
-COPY . .
+COPY app/ ./app/
+COPY .env.example ./.env
 
-# Expose port (Railway sets PORT env var, but 8000 is default)
+# Add local bin to PATH
+ENV PATH=/root/.local/bin:$PATH
+
+# Create non-root user for security
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Expose port
 EXPOSE 8000
 
-# Run with Gunicorn for production performance
-# Using uvicorn worker class
-CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+
+# Run application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

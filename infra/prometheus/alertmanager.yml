@@ -1,0 +1,103 @@
+# AlertManager Configuration
+
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+
+# Route configuration
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default'
+  
+  routes:
+  # Critical alerts go to PagerDuty + Slack
+  - match:
+      severity: critical
+    receiver: 'critical-alerts'
+    continue: true
+  
+  # Warning alerts go to Slack only
+  - match:
+      severity: warning
+    receiver: 'slack-notifications'
+  
+  # Database alerts
+  - match:
+      component: database
+    receiver: 'database-team'
+    group_interval: 5m
+  
+  # Infrastructure alerts
+  - match:
+      component: infrastructure
+    receiver: 'infra-team'
+
+# Receivers
+receivers:
+  # Default receiver
+  - name: 'default'
+    slack_configs:
+    - channel: '#alerts'
+      title: '{{ template "slack.default.title" . }}'
+      text: '{{ template "slack.default.text" . }}'
+      send_resolved: true
+  
+  # Critical alerts (PagerDuty + Slack)
+  - name: 'critical-alerts'
+    pagerduty_configs:
+    - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY'
+      description: '{{ template "pagerduty.default.description" . }}'
+    slack_configs:
+    - channel: '#critical-alerts'
+      title: '🚨 CRITICAL: {{ template "slack.default.title" . }}'
+      text: '{{ template "slack.default.text" . }}'
+      color: 'danger'
+      send_resolved: true
+  
+  # Slack notifications
+  - name: 'slack-notifications'
+    slack_configs:
+    - channel: '#alerts'
+      title: '⚠️  {{ template "slack.default.title" . }}'
+      text: '{{ template "slack.default.text" . }}'
+      color: 'warning'
+      send_resolved: true
+  
+  # Database team
+  - name: 'database-team'
+    slack_configs:
+    - channel: '#database-alerts'
+      title: '🗄️  Database Alert: {{ template "slack.default.title" . }}'
+      text: '{{ template "slack.default.text" . }}'
+      send_resolved: true
+  
+  # Infrastructure team
+  - name: 'infra-team'
+    slack_configs:
+    - channel: '#infra-alerts'
+      title: '🔧 Infrastructure Alert: {{ template "slack.default.title" . }}'
+      text: '{{ template "slack.default.text" . }}'
+      send_resolved: true
+
+# Inhibition rules (prevent alert storms)
+inhibit_rules:
+  # Inhibit warning if critical is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+  
+  # Inhibit pod alerts if node is down
+  - source_match:
+      alertname: 'NodeDown'
+    target_match:
+      alertname: 'PodNotReady'
+    equal: ['node']
+
+# Templates for Slack messages
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

@@ -1,0 +1,171 @@
+# Falco Runtime Security Configuration
+# Detects anomalous activity in containers
+
+# Falco Helm values
+falco:
+  # Enable gRPC output
+  grpc:
+    enabled: true
+  grpcOutput:
+    enabled: true
+  
+  # Enable JSON output for log aggregation
+  jsonOutput: true
+  jsonIncludeOutputProperty: true
+  
+  # Logging
+  logLevel: info
+  
+  # Performance tuning
+  bufferedOutputs: true
+  
+  # Syscall event drops
+  syscallEventDrops:
+    actions:
+      - log
+      - alert
+  
+  # Custom rules
+  customRules:
+    custom-rules.yaml: |-
+      # Detect unauthorized process execution
+      - rule: Unauthorized Process in Container
+        desc: Detect processes not in approved list
+        condition: >
+          spawned_process and container 
+          and not proc.name in (python, gunicorn, celery, sh, bash)
+        output: >
+          Unauthorized process started
+          (user=%user.name command=%proc.cmdline container=%container.name pod=%k8s.pod.name)
+        priority: WARNING
+        tags: [process, container]
+      
+      # Detect write attempts to /etc
+      - rule: Write Below /etc
+        desc: Detect unauthorized writes to /etc directory
+        condition: >
+          write and container 
+          and fd.name startswith /etc
+        output: >
+          Write to /etc detected
+          (user=%user.name file=%fd.name container=%container.name pod=%k8s.pod.name)
+        priority: ERROR
+        tags: [filesystem, container]
+      
+      # Detect read of sensitive files
+      - rule: Read Sensitive File
+        desc: Detect attempts to read sensitive files
+        condition: >
+          open_read and container
+          and fd.name in (/etc/shadow, /etc/sudoers, /root/.ssh/id_rsa, /etc/pam.d/common-password)
+        output: >
+          Sensitive file read
+          (user=%user.name file=%fd.name container=%container.name pod=%k8s.pod.name)
+        priority: CRITICAL
+        tags: [filesystem, security]
+      
+      # Detect privilege escalation
+      - rule: Privilege Escalation Attempt
+        desc: Detect sudo or privilege escalation attempts
+        condition: >
+          spawned_process and container
+          and proc.name in (sudo, su, setuid)
+        output: >
+          Privilege escalation attempt
+          (user=%user.name command=%proc.cmdline container=%container.name pod=%k8s.pod.name)
+        priority: CRITICAL
+        tags: [privilege_escalation]
+      
+      # Detect network connections to suspicious IPs
+      - rule: Outbound Connection to Suspicious IP
+        desc: Detect outbound connections to suspicious IPs
+        condition: >
+          outbound and container
+          and fd.sip in (suspicious_ips)
+        output: >
+          Outbound connection to suspicious IP
+          (ip=%fd.sip port=%fd.sport container=%container.name pod=%k8s.pod.name)
+        priority: CRITICAL
+        tags: [network, malware]
+      
+      # Detect shell spawn inside container
+      - rule: Terminal Shell in Container
+        desc: Detect interactive shell spawned in container
+        condition: >
+          spawned_process and container
+          and proc.name in (sh, bash, zsh, fish)
+          and proc.tty != 0
+        output: >
+          Interactive shell spawned in container
+          (user=%user.name command=%proc.cmdline container=%container.name pod=%k8s.pod.name)
+        priority: WARNING
+        tags: [shell, container]
+      
+      # Detect package management
+      - rule: Package Management in Container
+        desc: Detect package installation in running container
+        condition: >
+          spawned_process and container
+          and proc.name in (apt, apt-get, yum, dnf, apk, pip, npm)
+        output: >
+          Package management tool run in container
+          (user=%user.name command=%proc.cmdline container=%container.name pod=%k8s.pod.name)
+        priority: WARNING
+        tags: [package_management]
+      
+      # Detect crypto mining
+      - rule: Potential Crypto Mining
+        desc: Detect processes commonly used for crypto mining
+        condition: >
+          spawned_process and container
+          and proc.name in (xmrig, minerd, ethminer, ccminer)
+        output: >
+          Potential crypto mining detected
+          (user=%user.name command=%proc.cmdline container=%container.name pod=%k8s.pod.name)
+        priority: CRITICAL
+        tags: [malware, crypto_mining]
+
+# Falcosidekick (for alert routing)
+falcosidekick:
+  enabled: true
+  
+  config:
+    # Slack integration
+    slack:
+      webhookurl: "${SLACK_WEBHOOK_URL}"
+      channel: "#security-alerts"
+      minimumpriority: "warning"
+      messageformat: "long"
+    
+    # PagerDuty integration
+    pagerduty:
+      routingkey: "${PAGERDUTY_ROUTING_KEY}"
+      minimumpriority: "critical"
+    
+    # Webhook for custom processing
+    webhook:
+      address: "http://security-processor.monitoring.svc.cluster.local:8080/falco"
+      minimumpriority: "warning"
+
+# Service Monitor for Prometheus
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  scrapeTimeout: 10s
+
+# Resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Node selector (run on all nodes)
+nodeSelector: {}
+
+# Tolerations (run on all nodes including tainted)
+tolerations:
+- effect: NoSchedule
+  operator: Exists

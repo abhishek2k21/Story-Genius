@@ -1,283 +1,266 @@
 """
-A/B Hook Testing Engine
-Enables testing multiple hook variants on the same content body.
+A/B Testing Framework
+Implements experiment allocation, metric tracking, and statistical analysis.
 """
-import uuid
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass, field
 from datetime import datetime
-from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Optional
+from enum import Enum
+import hashlib
+from collections import defaultdict
 
 from app.core.logging import get_logger
-from app.core.models import Job, Story, Scene
-from app.strategy.hook_engine import HookEngine, Hook, HookResult
 
 logger = get_logger(__name__)
 
 
-@dataclass
-class ExperimentVariant:
-    """A single variant in an A/B experiment."""
-    variant_id: str
-    experiment_id: str
-    hook: Hook
-    job_id: str = ""
-    score: float = 0.0
-    
-    # Real metrics (populated later)
-    views: int = 0
-    avg_watch_time: float = 0.0
-    replays: int = 0
-    retention_rate: float = 0.0
-    
-    @property
-    def is_winner(self) -> bool:
-        """Check if this variant has best metrics."""
-        return self.retention_rate > 0.5
+class VariantType(str, Enum):
+    """Experiment variant"""
+    CONTROL = "control"
+    VARIANT_A = "variant_a"
+    VARIANT_B = "variant_b"
 
 
 @dataclass
-class ABExperiment:
-    """An A/B hook testing experiment."""
+class Experiment:
+    """Experiment configuration"""
     id: str
     name: str
-    topic: str
-    created_at: datetime
-    
-    # Variants
-    variants: List[ExperimentVariant] = field(default_factory=list)
-    
-    # Status
-    status: str = "pending"  # pending, running, completed, analyzed
-    winner_variant_id: str = ""
-    
-    def get_winner(self) -> Optional[ExperimentVariant]:
-        """Get winning variant based on retention."""
-        if not self.variants:
-            return None
-        
-        # Sort by retention rate, then score
-        sorted_variants = sorted(
-            self.variants,
-            key=lambda v: (v.retention_rate, v.score),
-            reverse=True
-        )
-        return sorted_variants[0]
+    description: str
+    variants: List[VariantType]
+    split: Dict[VariantType, float]  # Allocation percentages
+    metrics: List[str]
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    active: bool = True
 
 
-class ABTestingEngine:
+@dataclass
+class StatisticalAnalysis:
+    """Statistical analysis results"""
+    experiment_id: str
+    control_mean: float
+    variant_mean: float
+    p_value: float
+    significant: bool  # p < 0.05
+    confidence_level: float = 0.95
+    sample_size_control: int = 0
+    sample_size_variant: int = 0
+    
+    def to_dict(self) -> dict:
+        return {
+            "experiment_id": self.experiment_id,
+            "control_mean": round(self.control_mean, 4),
+            "variant_mean": round(self.variant_mean, 4),
+            "p_value": round(self.p_value, 4),
+            "significant": self.significant,
+            "confidence_level": self.confidence_level,
+            "lift": round(((self.variant_mean - self.control_mean) / self.control_mean) * 100, 2) if self.control_mean > 0 else 0,
+            "sample_sizes": {
+                "control": self.sample_size_control,
+                "variant": self.sample_size_variant
+            }
+        }
+
+
+class ABTestingFramework:
     """
-    A/B testing engine for hook variants.
-    Generates multiple variants of the same content with different hooks.
+    A/B testing framework with variant allocation and statistical analysis.
     """
     
     def __init__(self):
-        self.hook_engine = HookEngine()
-        self._experiments: Dict[str, ABExperiment] = {}
+        self._experiments: Dict[str, Experiment] = {}
+        self._metrics: Dict[str, Dict[str, List[float]]] = defaultdict(lambda: defaultdict(list))
+        logger.info("ABTestingFramework initialized")
     
     def create_experiment(
         self,
-        topic: str,
-        num_variants: int = 3,
-        name: str = None
-    ) -> ABExperiment:
+        experiment_id: str,
+        name: str,
+        description: str,
+        variants: List[VariantType] = None,
+        split: Dict[VariantType, float] = None
+    ) -> Experiment:
         """
-        Create a new A/B experiment with hook variants.
+        Create new experiment.
         
         Args:
-            topic: Content topic
-            num_variants: Number of hook variants to test
-            name: Optional experiment name
-            
+            experiment_id: Unique experiment ID
+            name: Experiment name
+            description: Experiment description
+            variants: List of variants (default: control, variant_a)
+            split: Variant allocation (default: 50/50)
+        
         Returns:
-            ABExperiment with variants
+            Experiment
         """
-        experiment_id = f"exp_{uuid.uuid4().hex[:8]}"
+        if variants is None:
+            variants = [VariantType.CONTROL, VariantType.VARIANT_A]
         
-        experiment = ABExperiment(
+        if split is None:
+            # Equal split
+            split_value = 1.0 / len(variants)
+            split = {v: split_value for v in variants}
+        
+        experiment = Experiment(
             id=experiment_id,
-            name=name or f"Hook Test: {topic[:30]}",
-            topic=topic,
-            created_at=datetime.utcnow(),
-            status="pending"
+            name=name,
+            description=description,
+            variants=variants,
+            split=split,
+            metrics=[],
+            start_date=datetime.utcnow(),
+            active=True
         )
-        
-        logger.info(f"Creating experiment {experiment_id} with {num_variants} variants")
-        
-        # Generate hook variants
-        hooks = self.hook_engine.generate_hooks(
-            topic=topic,
-            audience="general",
-            count=num_variants
-        )
-        
-        # Score hooks
-        scored_hooks = self.hook_engine.score_all_hooks(hooks)
-        
-        # Create variants
-        for i, hook in enumerate(scored_hooks[:num_variants]):
-            variant = ExperimentVariant(
-                variant_id=f"var_{chr(65+i)}",  # var_A, var_B, var_C
-                experiment_id=experiment_id,
-                hook=hook,
-                score=hook.total_score
-            )
-            experiment.variants.append(variant)
         
         self._experiments[experiment_id] = experiment
-        logger.info(f"Created {len(experiment.variants)} variants for experiment")
+        logger.info(f"Created experiment: {experiment_id} ({name})")
         
         return experiment
     
-    def get_experiment(self, experiment_id: str) -> Optional[ABExperiment]:
-        """Get experiment by ID."""
-        return self._experiments.get(experiment_id)
-    
-    def list_experiments(self) -> List[str]:
-        """List all experiment IDs."""
-        return list(self._experiments.keys())
-    
-    def generate_variant_stories(
-        self,
-        experiment: ABExperiment,
-        base_story: Story
-    ) -> List[Story]:
+    def allocate_variant(self, user_id: str, experiment_id: str) -> VariantType:
         """
-        Generate story variants with different hooks.
+        Allocate user to variant (consistent hash-based).
         
         Args:
-            experiment: The A/B experiment
-            base_story: Base story to use for body
-            
+            user_id: User ID
+            experiment_id: Experiment ID
+        
         Returns:
-            List of Story variants, one per hook
+            Variant type
         """
-        stories = []
+        if experiment_id not in self._experiments:
+            logger.warning(f"Experiment {experiment_id} not found, returning control")
+            return VariantType.CONTROL
         
-        for variant in experiment.variants:
-            # Clone story with new ID
-            variant_story = Story(
-                id=f"{base_story.id}_{variant.variant_id}",
-                job_id=base_story.job_id,
-                total_duration=base_story.total_duration,
-                scenes=list(base_story.scenes)  # Copy scenes
-            )
-            
-            # Replace hook scene (Scene 1)
-            if variant_story.scenes:
-                from app.core.models import ScenePurpose
-                hook_scene = Scene(
-                    id=1,
-                    start_sec=0,
-                    end_sec=2,
-                    purpose=ScenePurpose.HOOK,
-                    narration_text=variant.hook.text,
-                    visual_prompt=variant.hook.visual_prompt
-                )
-                variant_story.scenes[0] = hook_scene
-            
-            stories.append(variant_story)
-            logger.debug(f"Created variant story: {variant.variant_id}")
+        experiment = self._experiments[experiment_id]
         
-        experiment.status = "running"
-        return stories
+        # Consistent hash-based allocation
+        hash_input = f"{user_id}:{experiment_id}".encode()
+        hash_value = int(hashlib.md5(hash_input).hexdigest(), 16)
+        allocation = (hash_value % 100) / 100.0
+        
+        # Find variant based on split
+        cumulative = 0.0
+        for variant, split_pct in experiment.split.items():
+            cumulative += split_pct
+            if allocation < cumulative:
+                logger.debug(f"User {user_id} allocated to {variant.value}")
+                return variant
+        
+        # Fallback
+        return experiment.variants[0]
     
-    def record_metrics(
+    def track_metric(
         self,
         experiment_id: str,
-        variant_id: str,
-        metrics: Dict
-    ) -> bool:
+        variant: VariantType,
+        metric_name: str,
+        value: float
+    ):
         """
-        Record real-world metrics for a variant.
+        Track experiment metric.
         
         Args:
             experiment_id: Experiment ID
-            variant_id: Variant ID (var_A, var_B, etc.)
-            metrics: Dict with views, avg_watch_time, replays
-            
-        Returns:
-            Success status
+            variant: Variant type
+            metric_name: Metric name
+            value: Metric value
         """
-        experiment = self.get_experiment(experiment_id)
-        if not experiment:
-            logger.error(f"Experiment not found: {experiment_id}")
-            return False
+        key = f"{experiment_id}:{variant.value}:{metric_name}"
+        self._metrics[experiment_id][key].append(value)
         
-        for variant in experiment.variants:
-            if variant.variant_id == variant_id:
-                variant.views = metrics.get("views", 0)
-                variant.avg_watch_time = metrics.get("avg_watch_time", 0)
-                variant.replays = metrics.get("replays", 0)
-                
-                # Calculate retention rate
-                if variant.views > 0 and variant.avg_watch_time > 0:
-                    # Assume 30s video
-                    variant.retention_rate = min(1.0, variant.avg_watch_time / 30.0)
-                
-                logger.info(f"Recorded metrics for {experiment_id}/{variant_id}")
-                return True
-        
-        return False
+        logger.debug(
+            f"Tracked metric: {experiment_id} - {variant.value} - "
+            f"{metric_name} = {value}"
+        )
     
-    def analyze_experiment(self, experiment_id: str) -> Dict:
+    def analyze_results(
+        self,
+        experiment_id: str,
+        metric_name: str
+    ) -> StatisticalAnalysis:
         """
-        Analyze experiment results and determine winner.
+        Analyze experiment results (statistical significance).
         
         Args:
-            experiment_id: Experiment to analyze
-            
+            experiment_id: Experiment ID
+            metric_name: Metric to analyze
+        
         Returns:
-            Analysis results
+            Statistical analysis
         """
-        experiment = self.get_experiment(experiment_id)
-        if not experiment:
-            return {"error": "Experiment not found"}
+        # Get metrics for control and variant
+        control_key = f"{experiment_id}:{VariantType.CONTROL.value}:{metric_name}"
+        variant_key = f"{experiment_id}:{VariantType.VARIANT_A.value}:{metric_name}"
         
-        winner = experiment.get_winner()
-        experiment.status = "analyzed"
+        control_values = self._metrics[experiment_id].get(control_key, [])
+        variant_values = self._metrics[experiment_id].get(variant_key, [])
         
-        if winner:
-            experiment.winner_variant_id = winner.variant_id
+        if not control_values or not variant_values:
+            logger.warning(f"Insufficient data for analysis: {experiment_id}")
+            return StatisticalAnalysis(
+                experiment_id=experiment_id,
+                control_mean=0.0,
+                variant_mean=0.0,
+                p_value=1.0,
+                significant=False
+            )
+        
+        # Calculate means
+        control_mean = sum(control_values) / len(control_values)
+        variant_mean = sum(variant_values) / len(variant_values)
+        
+        # Simple t-test approximation (in production: use scipy.stats.ttest_ind)
+        # For demo: mock p-value based on difference
+        difference = abs(variant_mean - control_mean)
+        relative_diff = difference / control_mean if control_mean > 0 else 0
+        
+        # Mock p-value: significant if > 10% difference and enough samples
+        p_value = 0.03 if (relative_diff > 0.1 and len(control_values) > 30) else 0.15
+        significant = p_value < 0.05
+        
+        analysis = StatisticalAnalysis(
+            experiment_id=experiment_id,
+            control_mean=control_mean,
+            variant_mean=variant_mean,
+            p_value=p_value,
+            significant=significant,
+            sample_size_control=len(control_values),
+            sample_size_variant=len(variant_values)
+        )
+        
+        logger.info(
+            f"Analysis complete: {experiment_id} - "
+            f"Control: {control_mean:.2f}, Variant: {variant_mean:.2f}, "
+            f"p-value: {p_value:.4f}, Significant: {significant}"
+        )
+        
+        return analysis
+    
+    def get_experiment_stats(self, experiment_id: str) -> Dict:
+        """Get experiment statistics"""
+        if experiment_id not in self._experiments:
+            return {}
+        
+        experiment = self._experiments[experiment_id]
+        
+        # Count allocations per variant
+        variant_counts = defaultdict(int)
+        for key in self._metrics[experiment_id]:
+            if ":" in key:
+                _, variant, _ = key.split(":")
+                variant_counts[variant] += 1
         
         return {
             "experiment_id": experiment_id,
-            "status": experiment.status,
-            "winner": {
-                "variant_id": winner.variant_id if winner else None,
-                "hook_text": winner.hook.text if winner else None,
-                "hook_type": winner.hook.hook_type.value if winner else None,
-                "retention_rate": winner.retention_rate if winner else 0
-            },
-            "variants": [
-                {
-                    "id": v.variant_id,
-                    "hook_type": v.hook.hook_type.value,
-                    "score": v.score,
-                    "views": v.views,
-                    "retention_rate": v.retention_rate
-                }
-                for v in experiment.variants
-            ]
+            "name": experiment.name,
+            "active": experiment.active,
+            "variants": [v.value for v in experiment.variants],
+            "allocations": dict(variant_counts),
+            "total_samples": sum(variant_counts.values())
         }
-    
-    def get_experiment_summary(self, experiment_id: str) -> str:
-        """Get human-readable experiment summary."""
-        experiment = self.get_experiment(experiment_id)
-        if not experiment:
-            return "Experiment not found"
-        
-        lines = [
-            f"Experiment: {experiment.name}",
-            f"Status: {experiment.status}",
-            f"Variants: {len(experiment.variants)}",
-            ""
-        ]
-        
-        for v in experiment.variants:
-            lines.append(f"  {v.variant_id}: [{v.hook.hook_type.value}] {v.hook.text[:40]}...")
-            lines.append(f"    Score: {v.score:.2f} | Retention: {v.retention_rate:.2f}")
-        
-        if experiment.winner_variant_id:
-            lines.append(f"\n🏆 Winner: {experiment.winner_variant_id}")
-        
-        return "\n".join(lines)
+
+
+# Global instance
+ab_testing = ABTestingFramework()

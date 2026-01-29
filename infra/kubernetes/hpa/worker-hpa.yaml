@@ -1,0 +1,60 @@
+# Horizontal Pod Autoscaler for Worker Service
+# Scales based on Celery queue depth (custom metric) and CPU
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: worker-hpa
+  namespace: production
+  labels:
+    app: worker
+    component: autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: worker
+  
+  minReplicas: 2
+  maxReplicas: 100
+  
+  metrics:
+  # Primary: Queue depth metric (custom from Prometheus)
+  - type: Pods
+    pods:
+      metric:
+        name: celery_queue_depth
+      target:
+        type: AverageValue
+        averageValue: "100"  # Target: 100 jobs per pod
+  
+  # Fallback: CPU-based scaling if queue metric unavailable
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  
+  # Scaling behavior
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0  # Scale up immediately when queue grows
+      policies:
+      # Aggressive scale-up for queue backlog
+      - type: Percent
+        value: 200  # Double the pods
+        periodSeconds: 30
+      - type: Pods
+        value: 10  # Or add 10 pods
+        periodSeconds: 30
+      selectPolicy: Max
+    
+    scaleDown:
+      stabilizationWindowSeconds: 600  # Wait 10 minutes before scaling down
+      policies:
+      # Conservative scale-down to avoid thrashing
+      - type: Percent
+        value: 25  # Reduce by 25%
+        periodSeconds: 60
+      selectPolicy: Min

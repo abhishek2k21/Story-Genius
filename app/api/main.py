@@ -2,37 +2,86 @@
 FastAPI Application Entry Point
 Creative AI Shorts & Reels Platform
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
+from pathlib import Path
 
 from app.api.routes import router
 from app.core.config import settings
 from app.core.database import init_db
 from app.core.logging import get_logger
+from app.core.exceptions import CustomException
+from app.api.middleware import RequestContextMiddleware, GlobalExceptionMiddleware
 
 logger = get_logger(__name__)
 
-# Initialize FastAPI app
+# Initialize FastAPI app with comprehensive metadata
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="AI-powered short-form video generation platform for YouTube Shorts, Instagram Reels, and TikTok.",
+    description="""
+## Story-Genius API
+
+AI-powered short-form video generation platform for YouTube Shorts, Instagram Reels, and TikTok.
+
+### Features
+* 🎬 **AI Video Generation** - Create videos from text prompts
+* 📊 **Batch Processing** - Generate multiple videos efficiently
+* 🎨 **Multi-Platform** - Support for all major short-form platforms
+* 🔒 **Secure** - JWT authentication with token refresh
+* ⚡ **Rate Limited** - Fair usage with tier-based quotas
+
+### Authentication
+All endpoints require Bearer token authentication except `/auth/login` and `/auth/register`.
+
+### Rate Limits
+- **Free**: 100 requests/hour, 10 videos/month
+- **Pro**: 300 requests/hour, 100 videos/month
+- **Enterprise**: 1000 requests/hour, unlimited videos
+
+### Support
+For issues or questions, contact support@story-genius.ai
+    """.strip(),
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    openapi_tags=[
+        {"name": "auth", "description": "Authentication endpoints"},
+        {"name": "videos", "description": "Video generation operations"},
+        {"name": "batches", "description": "Batch processing"},
+        {"name": "analytics", "description": "Analytics and reporting"},
+        {"name": "health", "description": "System health checks"},
+    ]
 )
 
-# CORS middleware
+# Exception Handlers
+@app.exception_handler(CustomException)
+async def custom_exception_handler(request: Request, exc: CustomException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=exc.to_dict(),
+    )
+
+# Middleware
+app.add_middleware(GlobalExceptionMiddleware)
+app.add_middleware(RequestContextMiddleware)
+
+# CORS middleware - Environment-specific allowed origins
+allowed_origins = [
+    "http://localhost:5173",  # Vite dev server
+    "http://localhost:3000",  # Alt dev server
+]
+
+# Add production origins from environment
+allowed_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite dev server
-        "http://localhost:3000",
-        "https://story-genius.vercel.app",
-        "*" # Keep wildcard for development ease if needed, but above are the target ones
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
 
@@ -124,7 +173,12 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    """Root endpoint."""
+    """Root endpoint - serve frontend or API info."""
+    # Serve frontend if available
+    frontend_index = Path(__file__).parent.parent.parent / "frontend" / "dist" / "index.html"
+    if frontend_index.exists():
+        return FileResponse(frontend_index)
+    # Fallback to API info
     return {
         "name": settings.APP_NAME,
         "version": settings.APP_VERSION,
@@ -140,6 +194,22 @@ async def health_check():
         "version": settings.APP_VERSION,
         "timestamp": datetime.now().isoformat()
     }
+
+
+# Serve frontend static files (production build)
+FRONTEND_DIR = Path(__file__).parent.parent.parent / "frontend" / "dist"
+if FRONTEND_DIR.exists():
+    # Mount static assets
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIR / "assets"), name="assets")
+    
+    # SPA catch-all: serve index.html for all non-API routes
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """Serve React SPA for all non-API routes."""
+        index_file = FRONTEND_DIR / "index.html"
+        if index_file.exists():
+            return FileResponse(index_file)
+        return {"error": "Frontend not built"}
 
 
 if __name__ == "__main__":

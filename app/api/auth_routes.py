@@ -12,6 +12,14 @@ from app.auth.models import AuthContext
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
+import logging
+auth_logger = logging.getLogger("auth_debug")
+auth_logger.setLevel(logging.INFO)
+handler = logging.FileHandler("auth_debug.log")
+formatter = logging.Formatter('%(asctime)s - %(message)s')
+handler.setFormatter(formatter)
+auth_logger.addHandler(handler)
+
 
 # ==================== Request/Response Models ====================
 
@@ -19,6 +27,13 @@ class RegisterRequest(BaseModel):
     email: str = Field(..., min_length=5)
     username: str = Field(..., min_length=3, max_length=30)
     password: str = Field(..., min_length=8)
+
+
+class SignupRequest(BaseModel):
+    """Signup request matching frontend schema"""
+    email: str = Field(..., min_length=5)
+    password: str = Field(..., min_length=8)
+    full_name: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
@@ -44,6 +59,7 @@ async def get_current_user(
     x_api_key: Optional[str] = Header(None, alias="X-API-Key")
 ) -> AuthContext:
     """Get current authenticated user"""
+    auth_logger.info(f"AUTH CHECK: auth_header={'Present' if authorization else 'Missing'} api_key={'Present' if x_api_key else 'Missing'}")
     
     # Try API key first
     if x_api_key:
@@ -85,20 +101,49 @@ async def register(request: RegisterRequest):
     }
 
 
+@router.post("/signup")
+async def signup(request: SignupRequest):
+    """Signup endpoint matching frontend schema - returns tokens"""
+    # Use full_name as username, or generate from email
+    username = request.full_name or request.email.split('@')[0]
+    
+    user, msg = auth_service.register_user(
+        email=request.email,
+        username=username,
+        password=request.password
+    )
+    
+    if not user:
+        raise HTTPException(status_code=400, detail=msg)
+    
+    # Return tokens like login does
+    tokens = create_token_pair(user.user_id, user.role.value)
+    tokens["user"] = user.to_dict()
+    
+    return tokens
+
+
 @router.post("/login")
 async def login(request: LoginRequest):
     """Login and get tokens"""
+    auth_logger.info(f"LOGIN ATTEMPT: identifier={request.email} password_len={len(request.password)}")
+    print(f"LOGIN ATTEMPT: email={request.email} password={request.password[:3]}...")
     result, msg = auth_service.login(request.email, request.password)
     
     if not result:
+        auth_logger.error(f"LOGIN FAILED: {msg}")
+        print(f"LOGIN FAILED: {msg}")
         raise HTTPException(status_code=401, detail=msg)
     
+    auth_logger.info("LOGIN SUCCESS")
+    print("LOGIN SUCCESS")
     return result
 
 
 @router.get("/me")
 async def get_current_user_info(auth: AuthContext = Depends(get_current_user)):
     """Get current user info"""
+    auth_logger.info(f"ME REQUEST: user_id={auth.user.user_id} email={auth.user.email}")
     return auth.user.to_dict()
 
 

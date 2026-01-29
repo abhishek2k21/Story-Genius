@@ -39,7 +39,8 @@ export default function ContentCalendar() {
     })
 
     // Group slots by date string for calendar markers
-    const slotsByDate = slots?.reduce((acc, slot) => {
+    const slotsList = Array.isArray(slots) ? slots : []
+    const slotsByDate = slotsList.reduce((acc, slot) => {
         const dateStr = new Date(slot.slot_date).toDateString()
         if (!acc[dateStr]) acc[dateStr] = []
         acc[dateStr].push(slot)
@@ -111,7 +112,7 @@ export default function ContentCalendar() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {/* Filter out past or current selection to show upcoming */}
-                            {slots?.filter(s => new Date(s.slot_date) > new Date()).slice(0, 3).map(slot => (
+                            {slotsList.filter(s => new Date(s.slot_date) > new Date()).slice(0, 3).map(slot => (
                                 <div key={slot.id} className="flex items-center justify-between text-sm">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full ${getStatusColor(slot.status)}`} />

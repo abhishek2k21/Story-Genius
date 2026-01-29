@@ -1,0 +1,57 @@
+# Pod Disruption Budgets for High Availability
+
+---
+# PDB for API Backend
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: app-backend-pdb
+  namespace: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: app-backend
+  unhealthyPodEvictionPolicy: AlwaysAllow
+
+---
+# PDB for Worker Pods
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: worker-pdb
+  namespace: production
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: worker
+  unhealthyPodEvictionPolicy: AlwaysAllow
+
+---
+# PDB for PostgreSQL
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: postgres-ha
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+# PDB for Redis
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-pdb
+  namespace: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: redis-ha
+  unhealthyPodEvictionPolicy: IfHealthyBudget

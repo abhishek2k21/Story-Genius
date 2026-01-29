@@ -1,0 +1,107 @@
+# TLS 1.3 Configuration for NGINX Ingress
+# Enforces encryption in transit with strong ciphers
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress-tls
+  namespace: production
+  annotations:
+    # TLS Configuration
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256"
+    nginx.ingress.kubernetes.io/ssl-prefer-server-ciphers: "true"
+    
+    # HSTS (HTTP Strict Transport Security)
+    nginx.ingress.kubernetes.io/hsts: "true"
+    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"  # 1 year
+    nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
+    nginx.ingress.kubernetes.io/hsts-preload: "true"
+    
+    # Force HTTPS
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # Security Headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';";
+    
+    # Certificate management
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+
+spec:
+  ingressClassName: nginx
+  
+  tls:
+  - hosts:
+    - api.ytvideocreator.com
+    - www.api.ytvideocreator.com
+    secretName: api-tls-cert  # Managed by cert-manager
+  
+  rules:
+  - host: api.ytvideocreator.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-backend
+            port:
+              number: 8000
+  
+  - host: www.api.ytvideocreator.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-backend
+            port:
+              number: 8000
+
+---
+# WebSocket Ingress with TLS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: websocket-ingress-tls
+  namespace: production
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/hsts: "true"
+    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
+    
+    # WebSocket support
+    nginx.ingress.kubernetes.io/websocket-services: "websocket-service"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+spec:
+  ingressClassName: nginx
+  
+  tls:
+  - hosts:
+    - ws.ytvideocreator.com
+    secretName: ws-tls-cert
+  
+  rules:
+  - host: ws.ytvideocreator.com
+    http:
+      paths:
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: websocket-service
+            port:
+              number: 8080

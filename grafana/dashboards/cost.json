@@ -1,0 +1,137 @@
+{
+    "dashboard": {
+        "title": "Cost Tracking Dashboard",
+        "tags": [
+            "cost",
+            "billing"
+        ],
+        "timezone": "UTC",
+        "refresh": "1m",
+        "panels": [
+            {
+                "id": 1,
+                "title": "Token Usage (Last 24h)",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "sum(rate(tokens_used[24h])) by (model)",
+                        "legendFormat": "{{model}}"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 12,
+                    "h": 6
+                },
+                "yaxes": [
+                    {
+                        "format": "short",
+                        "label": "Tokens"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "title": "LLM API Calls (Last 24h)",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "sum(increase(llm_requests_total[24h]))",
+                        "legendFormat": "Total Calls"
+                    }
+                ],
+                "gridPos": {
+                    "x": 12,
+                    "y": 0,
+                    "w": 6,
+                    "h": 6
+                }
+            },
+            {
+                "id": 3,
+                "title": "Total Jobs (Last 24h)",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "sum(increase(jobs_created_total[24h]))",
+                        "legendFormat": "Jobs"
+                    }
+                ],
+                "gridPos": {
+                    "x": 18,
+                    "y": 0,
+                    "w": 6,
+                    "h": 6
+                }
+            },
+            {
+                "id": 4,
+                "title": "Token Usage by Model",
+                "type": "piechart",
+                "targets": [
+                    {
+                        "expr": "sum(increase(tokens_used[24h])) by (model)",
+                        "legendFormat": "{{model}}"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 6,
+                    "w": 12,
+                    "h": 8
+                }
+            },
+            {
+                "id": 5,
+                "title": "Estimated Cost (Gemini 2.0 Flash)",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "(sum(increase(tokens_used{model=\"gemini-2.0-flash\"}[24h])) / 1000000) * 0.025",
+                        "legendFormat": "Cost (USD)"
+                    }
+                ],
+                "gridPos": {
+                    "x": 12,
+                    "y": 6,
+                    "w": 12,
+                    "h": 8
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "currencyUSD",
+                        "decimals": 2
+                    }
+                }
+            },
+            {
+                "id": 6,
+                "title": "Cache Savings (Estimated)",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "(sum(increase(cache_hits_total[24h])) * 1500 / 1000000) * 0.025",
+                        "legendFormat": "Saved (USD)"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 14,
+                    "w": 12,
+                    "h": 6
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "currencyUSD",
+                        "decimals": 2,
+                        "color": {
+                            "mode": "fixed",
+                            "fixedColor": "green"
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

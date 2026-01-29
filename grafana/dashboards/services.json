@@ -1,0 +1,129 @@
+{
+    "dashboard": {
+        "title": "Services Health Dashboard",
+        "tags": [
+            "services",
+            "health"
+        ],
+        "timezone": "UTC",
+        "refresh": "30s",
+        "panels": [
+            {
+                "id": 1,
+                "title": "LLM Request Rate",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "sum(rate(llm_requests_total[5m])) by (model)",
+                        "legendFormat": "{{model}}"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 12,
+                    "h": 6
+                }
+            },
+            {
+                "id": 2,
+                "title": "LLM Latency (p95)",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(llm_latency_seconds_bucket[5m])) by (le, model))",
+                        "legendFormat": "{{model}}"
+                    }
+                ],
+                "gridPos": {
+                    "x": 12,
+                    "y": 0,
+                    "w": 12,
+                    "h": 6
+                },
+                "yaxes": [
+                    {
+                        "format": "s"
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "title": "LLM Error Rate",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "(sum(rate(llm_requests_total{status=\"failure\"}[5m])) by (model) / sum(rate(llm_requests_total[5m])) by (model)) * 100",
+                        "legendFormat": "{{model}}"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 6,
+                    "w": 12,
+                    "h": 6
+                },
+                "yaxes": [
+                    {
+                        "format": "percent"
+                    }
+                ]
+            },
+            {
+                "id": 4,
+                "title": "Batch Processing Time",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(batch_processing_seconds_bucket[5m])) by (le))",
+                        "legendFormat": "p95"
+                    }
+                ],
+                "gridPos": {
+                    "x": 12,
+                    "y": 6,
+                    "w": 12,
+                    "h": 6
+                }
+            },
+            {
+                "id": 5,
+                "title": "Cache Performance",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "rate(cache_hits_total[5m])",
+                        "legendFormat": "Hits"
+                    },
+                    {
+                        "expr": "rate(cache_misses_total[5m])",
+                        "legendFormat": "Misses"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 12,
+                    "w": 12,
+                    "h": 6
+                }
+            },
+            {
+                "id": 6,
+                "title": "Cache Size",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "cache_entries",
+                        "legendFormat": "Entries"
+                    }
+                ],
+                "gridPos": {
+                    "x": 12,
+                    "y": 12,
+                    "w": 12,
+                    "h": 6
+                }
+            }
+        ]
+    }
+}

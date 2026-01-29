@@ -1,0 +1,207 @@
+{
+    "dashboard": {
+        "title": "Story-Genius Main Dashboard",
+        "tags": [
+            "main",
+            "overview"
+        ],
+        "timezone": "UTC",
+        "refresh": "30s",
+        "panels": [
+            {
+                "id": 1,
+                "title": "Success Rate (24h)",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "(sum(rate(jobs_completed_total{status=\"success\"}[24h])) / sum(rate(jobs_completed_total[24h]))) * 100",
+                        "legendFormat": "Success Rate"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 6,
+                    "h": 4
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "percent",
+                        "thresholds": {
+                            "steps": [
+                                {
+                                    "value": 0,
+                                    "color": "red"
+                                },
+                                {
+                                    "value": 80,
+                                    "color": "yellow"
+                                },
+                                {
+                                    "value": 95,
+                                    "color": "green"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                "id": 2,
+                "title": "Error Rate (1h)",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "( sum(rate(jobs_completed_total{status=\"failed\"}[1h])) / sum(rate(jobs_completed_total[1h]))) * 100",
+                        "legendFormat": "Error Rate"
+                    }
+                ],
+                "gridPos": {
+                    "x": 6,
+                    "y": 0,
+                    "w": 6,
+                    "h": 4
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "percent",
+                        "thresholds": {
+                            "steps": [
+                                {
+                                    "value": 0,
+                                    "color": "green"
+                                },
+                                {
+                                    "value": 5,
+                                    "color": "yellow"
+                                },
+                                {
+                                    "value": 10,
+                                    "color": "red"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                "id": 3,
+                "title": "Active Jobs",
+                "type": "gauge",
+                "targets": [
+                    {
+                        "expr": "active_jobs",
+                        "legendFormat": "Active"
+                    }
+                ],
+                "gridPos": {
+                    "x": 12,
+                    "y": 0,
+                    "w": 6,
+                    "h": 4
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "max": 100,
+                        "thresholds": {
+                            "steps": [
+                                {
+                                    "value": 0,
+                                    "color": "green"
+                                },
+                                {
+                                    "value": 50,
+                                    "color": "yellow"
+                                },
+                                {
+                                    "value": 80,
+                                    "color": "red"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                "id": 4,
+                "title": "Cache Hit Rate",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "(sum(rate(cache_hits_total[5m])) / (sum(rate(cache_hits_total[5m])) + sum(rate(cache_misses_total[5m])))) * 100",
+                        "legendFormat": "Hit Rate"
+                    }
+                ],
+                "gridPos": {
+                    "x": 18,
+                    "y": 0,
+                    "w": 6,
+                    "h": 4
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "percent"
+                    }
+                }
+            },
+            {
+                "id": 5,
+                "title": "Job Duration (Latency)",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.50, sum(rate(job_duration_seconds_bucket[5m])) by (le))",
+                        "legendFormat": "p50"
+                    },
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(job_duration_seconds_bucket[5m])) by (le))",
+                        "legendFormat": "p95"
+                    },
+                    {
+                        "expr": "histogram_quantile(0.99, sum(rate(job_duration_seconds_bucket[5m])) by (le))",
+                        "legendFormat": "p99"
+                    }
+                ],
+                "gridPos": {
+                    "x": 0,
+                    "y": 4,
+                    "w": 12,
+                    "h": 6
+                },
+                "yaxes": [
+                    {
+                        "format": "s",
+                        "label": "Duration"
+                    }
+                ]
+            },
+            {
+                "id": 6,
+                "title": "Request Rate",
+                "type": "graph",
+                "targets": [
+                    {
+                        "expr": "sum(rate(jobs_created_total[5m]))",
+                        "legendFormat": "Created"
+                    },
+                    {
+                        "expr": "sum(rate(jobs_completed_total[5m]))",
+                        "legendFormat": "Completed"
+                    }
+                ],
+                "gridPos": {
+                    "x": 12,
+                    "y": 4,
+                    "w": 12,
+                    "h": 6
+                },
+                "yaxes": [
+                    {
+                        "format": "reqps",
+                        "label": "Requests/sec"
+                    }
+                ]
+            }
+        ]
+    }
+}

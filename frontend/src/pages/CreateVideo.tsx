@@ -15,7 +15,6 @@ export default function CreateVideo() {
     // 1. Create Job Mutation
     const createJob = useMutation({
         mutationFn: async (topic: string) => {
-            // Using the API client to call the backend
             return apiClient.createJob({
                 platform: 'youtube_shorts',
                 audience: 'general_adult',
@@ -60,39 +59,39 @@ export default function CreateVideo() {
     }
 
     return (
-        <div className="p-8 max-w-5xl mx-auto">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Create Video</h1>
-                <p className="text-slate-400 mt-2">AI-Powered Video Generation</p>
+        <div className="p-4 md:p-8 max-w-5xl mx-auto container">
+            <div className="mb-6 md:mb-8">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Create Video</h1>
+                <p className="text-slate-400 mt-2 text-sm md:text-base">AI-Powered Video Generation</p>
             </div>
 
-            {/* Input Section - Hide if job is running/done to focus on result, or keep visible to queue more (keeping simple for now) */}
+            {/* Input Section */}
             {!currentJobId ? (
-                <Card className="bg-slate-900 border-slate-800 mb-8">
+                <Card className="bg-slate-800 border-slate-700 mb-8 shadow-lg">
                     <CardContent className="pt-6">
-                        <label className="block mb-2 font-medium text-slate-200">What's your video about?</label>
+                        <label className="block mb-3 font-semibold text-white text-lg">What's your video about?</label>
                         <Textarea
                             placeholder="E.g., The surprising history of the humble potato..."
                             value={idea}
                             onChange={(e) => setIdea(e.target.value)}
-                            className="min-h-32 bg-slate-950 border-slate-700 text-lg"
+                            className="min-h-[150px] bg-slate-950 border-slate-600 text-white placeholder:text-slate-400 text-lg p-4 focus-visible:ring-blue-500"
                             disabled={createJob.isPending}
                         />
-                        <div className="flex justify-end mt-4">
+                        <div className="flex justify-end mt-6">
                             <Button
                                 onClick={() => createJob.mutate(idea)}
-                                disabled={!idea || createJob.isPending}
+                                disabled={!idea.trim() || createJob.isPending}
                                 size="lg"
-                                className="w-full sm:w-auto"
+                                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-6 px-8 text-lg shadow-blue-900/50 shadow-lg transition-all"
                             >
                                 {createJob.isPending ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                                         Starting...
                                     </>
                                 ) : (
                                     <>
-                                        <Sparkles className="mr-2 h-4 w-4" />
+                                        <Sparkles className="mr-2 h-5 w-5" />
                                         Generate Video
                                     </>
                                 )}
@@ -104,7 +103,7 @@ export default function CreateVideo() {
                 <div className="space-y-6">
                     {/* Status Display */}
                     <Card className="bg-slate-900 border-slate-800">
-                        <CardContent className="p-6">
+                        <CardContent className="p-4 md:p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-bold text-lg">Job Status: {jobStatus?.status || 'Initiating...'}</h3>
                                 {jobStatus?.status !== 'completed' && jobStatus?.status !== 'failed' && (
@@ -112,7 +111,6 @@ export default function CreateVideo() {
                                 )}
                             </div>
 
-                            {/* Fake progress bar since we don't have real % yet usually */}
                             <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                                 <div
                                     className={`h-full transition-all duration-500 ${jobStatus?.status === 'completed' ? 'bg-green-500 w-full' :
@@ -142,14 +140,14 @@ export default function CreateVideo() {
                                     <VideoPlayer src={videoData.final_video} />
                                 </div>
 
-                                <div className="flex gap-4">
-                                    <Button asChild size="lg" className="bg-green-600 hover:bg-green-700">
+                                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                                    <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                                         <a href={videoData.final_video} download="story-genius-video.mp4">
                                             <Download className="mr-2 h-5 w-5" />
                                             Download Video
                                         </a>
                                     </Button>
-                                    <Button variant="outline" onClick={handleReset}>
+                                    <Button variant="outline" onClick={handleReset} className="w-full sm:w-auto">
                                         <RefreshCw className="mr-2 h-5 w-5" />
                                         Create Another
                                     </Button>

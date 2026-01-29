@@ -1,22 +1,24 @@
 """
 Schedule Executor
-Execute due schedules and manage execution lifecycle.
+Executes scheduled jobs with lock-based concurrency control.
 """
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+from enum import Enum
 import threading
+import time
 import uuid
 
 from app.scheduling.models import (
-    ScheduledJob, ScheduleExecution, ScheduleStatus, ExecutionStatus,
-    MissedPolicy, create_execution_id
+    ScheduledJob, ScheduleExecution, ExecutionStatus,
+    ScheduleStatus, JobType, create_execution_id
 )
-from app.scheduling.recurrence import calculate_next_occurrence
-from app.scheduling.queue import queue_manager
+from app.scheduling.queue import PriorityQueue
+from app.scheduling.lock_manager import lock_manager
 
 
 class ScheduleExecutor:
-    """Execute scheduled jobs"""
+    """Execute scheduled jobs with distributed locking"""
     
     _instance = None
     
@@ -25,7 +27,10 @@ class ScheduleExecutor:
             cls._instance = super().__new__(cls)
             cls._instance._schedules: Dict[str, ScheduledJob] = {}
             cls._instance._executions: Dict[str, List[ScheduleExecution]] = {}  # schedule_id -> executions
+            cls._instance._queue = PriorityQueue()
             cls._instance._lock = threading.Lock()
+            cls._instance._running = False
+            cls._instance._thread = None
         return cls._instance
     
     def register_schedule(self, schedule: ScheduledJob) -> None:
@@ -53,52 +58,78 @@ class ScheduleExecutor:
         return due
     
     def execute_schedule(self, schedule: ScheduledJob) -> ScheduleExecution:
-        """Execute a single schedule"""
-        execution = ScheduleExecution(
-            execution_id=create_execution_id(),
-            schedule_id=schedule.schedule_id,
-            scheduled_for=schedule.next_run_at or datetime.utcnow(),
-            started_at=datetime.utcnow(),
-            status=ExecutionStatus.RUNNING
-        )
+        """Execute a single schedule with distributed locking"""
         
-        # Add to executions
-        if schedule.schedule_id not in self._executions:
-            self._executions[schedule.schedule_id] = []
-        self._executions[schedule.schedule_id].append(execution)
+        # Generate lock key
+        lock_key = f"schedule:{schedule.schedule_id}:lock"
+        owner_id = f"executor:{threading.current_thread().ident}"
+        
+        # Try to acquire lock
+        if not lock_manager.acquire_lock(lock_key, owner_id, timeout=2.0, ttl=300.0):
+            # Lock acquisition failed - another process is executing this
+            execution = ScheduleExecution(
+                execution_id=create_execution_id(),
+                schedule_id=schedule.schedule_id,
+                scheduled_for=schedule.next_run_at or datetime.utcnow(),
+                started_at=datetime.utcnow(),
+                status=ExecutionStatus.SKIPPED,
+                error_message="Skipped: Already executing in another process"
+            )
+            if schedule.schedule_id not in self._executions:
+                self._executions[schedule.schedule_id] = []
+            self._executions[schedule.schedule_id].append(execution)
+            return execution
         
         try:
-            # Simulate job creation
-            execution.job_id = str(uuid.uuid4())
-            execution.status = ExecutionStatus.COMPLETED
-            execution.completed_at = datetime.utcnow()
-            execution.result_summary = {"status": "success"}
-        except Exception as e:
-            execution.status = ExecutionStatus.FAILED
-            execution.error_message = str(e)
-            execution.completed_at = datetime.utcnow()
-        
-        # Update schedule
-        schedule.last_run_at = datetime.utcnow()
-        schedule.run_count += 1
-        
-        # Check max runs
-        if schedule.max_runs and schedule.run_count >= schedule.max_runs:
-            schedule.status = ScheduleStatus.COMPLETED
-            schedule.next_run_at = None
-        elif schedule.recurrence_rule:
-            schedule.next_run_at = calculate_next_occurrence(
-                schedule.recurrence_rule,
-                datetime.utcnow()
+            execution = ScheduleExecution(
+                execution_id=create_execution_id(),
+                schedule_id=schedule.schedule_id,
+                scheduled_for=schedule.next_run_at or datetime.utcnow(),
+                started_at=datetime.utcnow(),
+                status=ExecutionStatus.RUNNING
             )
-        else:
-            # One-time schedule
-            schedule.status = ScheduleStatus.COMPLETED
-            schedule.next_run_at = None
-        
-        schedule.updated_at = datetime.utcnow()
-        
-        return execution
+            
+            # Add to executions
+            if schedule.schedule_id not in self._executions:
+                self._executions[schedule.schedule_id] = []
+            self._executions[schedule.schedule_id].append(execution)
+            
+            try:
+                # Simulate job creation
+                execution.job_id = str(uuid.uuid4())
+                execution.status = ExecutionStatus.COMPLETED
+                execution.completed_at = datetime.utcnow()
+                execution.result_summary = {"status": "success"}
+            except Exception as e:
+                execution.status = ExecutionStatus.FAILED
+                execution.error_message = str(e)
+                execution.completed_at = datetime.utcnow()
+            
+            # Update schedule
+            schedule.last_run_at = datetime.utcnow()
+            schedule.run_count += 1
+            
+            # Check max runs
+            if schedule.max_runs and schedule.run_count >= schedule.max_runs:
+                schedule.status = ScheduleStatus.COMPLETED
+                schedule.next_run_at = None
+            elif schedule.recurrence_rule:
+                from app.scheduling.recurrence import calculate_next_occurrence
+                schedule.next_run_at = calculate_next_occurrence(
+                    schedule.recurrence_rule,
+                    datetime.utcnow()
+                )
+            else:
+                # One-time schedule
+                schedule.status = ScheduleStatus.COMPLETED
+                schedule.next_run_at = None
+            
+            schedule.updated_at = datetime.utcnow()
+            
+            return execution
+        finally:
+            # Always release the lock
+            lock_manager.release_lock(lock_key, owner_id)
     
     def run_now(self, schedule: ScheduledJob, count_run: bool = False) -> ScheduleExecution:
         """Execute schedule immediately"""

@@ -1,0 +1,103 @@
+# Pod Security Standards Configuration
+# Enforces restricted security policies
+
+---
+# Production namespace with restricted security
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    name: production
+    # Enforce restricted Pod Security Standards
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+
+---
+# Staging namespace with restricted security
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+  labels:
+    name: staging
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+
+---
+# Monitoring namespace with baseline security (needs some privileges)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+
+---
+# Example: Restricted Pod Spec
+# This shows what's required for restricted policy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-app-example
+  namespace: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secure-app
+  template:
+    metadata:
+      labels:
+        app: secure-app
+    spec:
+      serviceAccountName: api-service-account  # Use dedicated service account
+      
+      # Security context for the Pod
+      securityContext:
+        runAsNonRoot: true      # REQUIRED: Don't run as root
+        runAsUser: 1000          # REQUIRED: Specific non-root user
+        fsGroup: 1000            # Set filesystem group
+        seccompProfile:
+          type: RuntimeDefault   # REQUIRED: Use default seccomp profile
+      
+      containers:
+      - name: app
+        image: app-image:latest
+        
+        # Security context for container
+        securityContext:
+          allowPrivilegeEscalation: false  # REQUIRED
+          runAsNonRoot: true               # REQUIRED
+          runAsUser: 1000                  # REQUIRED
+          capabilities:
+            drop:
+            - ALL                          # REQUIRED: Drop all capabilities
+          readOnlyRootFilesystem: true     # RECOMMENDED
+        
+        # Resource limits (required for restricted)
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        
+        # Volume mounts (read-only where possible)
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /app/cache
+      
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: cache
+        emptyDir: {}

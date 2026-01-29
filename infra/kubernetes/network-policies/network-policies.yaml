@@ -1,0 +1,314 @@
+# Kubernetes Network Policies
+# Implements zero-trust networking (default-deny)
+
+---
+# Default deny all ingress and egress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: production
+spec:
+  podSelector: {}  # Applies to all pods
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+# Allow DNS (required for all pods)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS queries to kube-dns
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+
+---
+# API Backend: Allow ingress from load balancer
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-backend-ingress
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: app-backend
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow traffic from NGINX Ingress
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8000
+
+---
+# API Backend: Allow egress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-backend-egress
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: app-backend
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS (covered by allow-dns policy)
+  
+  # Allow PostgreSQL
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  
+  # Allow Redis
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  
+  # Allow Vault
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: vault
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: vault
+    ports:
+    - protocol: TCP
+      port: 8200
+  
+  # Allow HTTPS egress (external APIs, S3, etc.)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow HTTP egress (for some APIs)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 80
+
+---
+# Worker: Allow egress only (no ingress needed)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: worker-egress
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: worker
+  policyTypes:
+  - Egress
+  - Ingress  # Default deny ingress
+  egress:
+  # PostgreSQL
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  
+  # Redis (Celery broker)
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  
+  # Vault
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: vault
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: vault
+    ports:
+    - protocol: TCP
+      port: 8200
+  
+  # HTTPS (AWS S3, external APIs)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # HTTP
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 80
+
+---
+# PostgreSQL: Allow ingress from API and Workers only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-ingress
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow from API
+  - from:
+    - podSelector:
+        matchLabels:
+          app: app-backend
+    ports:
+    - protocol: TCP
+      port: 5432
+  
+  # Allow from Workers
+  - from:
+    - podSelector:
+        matchLabels:
+          app: worker
+    ports:
+    - protocol: TCP
+      port: 5432
+  
+  # Allow from other Postgres instances (replication)
+  - from:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+
+---
+# Redis: Allow ingress from API and Workers only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-ingress
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow from API
+  - from:
+    - podSelector:
+        matchLabels:
+          app: app-backend
+    ports:
+    - protocol: TCP
+      port: 6379
+  
+  # Allow from Workers
+  - from:
+    - podSelector:
+        matchLabels:
+          app: worker
+    ports:
+    - protocol: TCP
+      port: 6379
+  
+  # Allow from other Redis instances (Sentinel)
+  - from:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+    - protocol: TCP
+      port: 26379  # Sentinel port
+
+---
+# Prometheus: Allow scraping from all pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: prometheus-scraping
+  namespace: monitoring
+spec:
+  podSelector:
+    matchLabels:
+      app: prometheus
+  policyTypes:
+  - Egress
+  egress:
+  # Allow scraping from all namespaces
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 8080  # Metrics port
+    - protocol: TCP
+      port: 9090  # Prometheus port
+
+---
+# Allow metrics scraping (applies to all pods)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-metrics-scraping
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow from Prometheus
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 8080

@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
-    const [email, setEmail] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            await login(email, password);
+            await login(identifier.trim(), password.trim());
             toast.success('Welcome back!');
             navigate('/dashboard');
         } catch (error) {
@@ -42,26 +43,35 @@ export default function Login() {
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium text-slate-200">Email</label>
+                            <label className="text-sm font-medium text-slate-200">Email or Username</label>
                             <Input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@example.com"
+                                type="text"
+                                value={identifier}
+                                onChange={(e) => setIdentifier(e.target.value)}
+                                placeholder="you@example.com or username"
                                 className="bg-slate-950 border-slate-700 text-white"
                                 required
                             />
                         </div>
                         <div>
                             <label className="text-sm font-medium text-slate-200">Password</label>
-                            <Input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                className="bg-slate-950 border-slate-700 text-white"
-                                required
-                            />
+                            <div className="relative">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="bg-slate-950 border-slate-700 text-white pr-10"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
                         </div>
                         <Button type="submit" className="w-full" disabled={isLoading}>
                             {isLoading ? (

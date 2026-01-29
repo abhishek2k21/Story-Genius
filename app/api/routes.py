@@ -55,9 +55,19 @@ async def generate_shorts(
 
 def run_job_background(job_id: str):
     """Background task to run job processing."""
+    import logging
+    logger = logging.getLogger(__name__)
     orchestrator = OrchestratorService()
     try:
-        orchestrator.start_job(job_id)
+        logger.info(f"🔵 [BACKGROUND] Starting job {job_id}")
+        result = orchestrator.start_job(job_id)
+        logger.info(f"🟢 [BACKGROUND] Job {job_id} completed with result: {result}")
+    except Exception as e:
+        logger.error(f"🔴 [BACKGROUND] Job {job_id} failed with exception!")
+        logger.error(f"🔴 [BACKGROUND] Exception type: {type(e).__name__}")
+        logger.error(f"🔴 [BACKGROUND] Exception message: {str(e)}")
+        import traceback
+        logger.error(f"🔴 [BACKGROUND] Traceback:\n{traceback.format_exc()}")
     finally:
         orchestrator.close()
 

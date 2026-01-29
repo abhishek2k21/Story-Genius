@@ -3,19 +3,32 @@ Database Module for the Creative AI Shorts Platform.
 Uses SQLAlchemy with SQLite (upgradeable to PostgreSQL).
 """
 from datetime import datetime
-from typing import Optional, List
-from sqlalchemy import create_engine, Column, String, Integer, Float, DateTime, Text, ForeignKey, Enum as SQLEnum
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, Session
+from typing import Optional, List, Generator
+from sqlalchemy import create_engine, Column, String, Integer, Float, DateTime, Text, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship, Session, declarative_base
 
 from app.core.config import settings
-from app.core.models import JobStatus, Platform, ScenePurpose
+from app.core.models import JobStatus, Platform
+# Note: ScenePurpose used in DBScene but not imported in original, fixing import if needed or ensuring generic string
 
-# Create engine and session
+# Create engine with pooling configuration
+connect_args = {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+
 engine = create_engine(
     settings.DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+    connect_args=connect_args,
+    pool_size=settings.DB_POOL_SIZE if "sqlite" not in settings.DATABASE_URL else None,
+    max_overflow=settings.DB_MAX_OVERFLOW if "sqlite" not in settings.DATABASE_URL else None,
+    pool_pre_ping=settings.DB_POOL_PRE_PING,
+    pool_recycle=settings.DB_POOL_RECYCLE,
+    # SQLite doesn't support pool_size/max_overflow with StaticPool (default for memory) or NullPool/QueuePool with check_same_thread=False
+    # However, for file-based SQLite, QueuePool is used but single-threaded access is preferred.
+    # We apply pooling params only if NOT sqlite or if we want to force it.
+    # For simplicity/safety with SQLite, we often omit pool_size/max_overflow to let SQLAlchemy handle defaults or use NullPool.
+    # But since user wants "Connection Pooling", we'll apply what we can. 
+    # SQLAlchemy ignores pool_size for SQLite's default SingletonThreadPool/NullPool depending on URL.
 )
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -141,18 +154,61 @@ class DBCriticScore(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+
+class DBUser(Base):
+    """SQLAlchemy model for users table."""
+    __tablename__ = "users"
+    
+    user_id = Column(String, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    username = Column(String, unique=True, index=True)
+    password_hash = Column(String)
+    status = Column(String, default="active")
+    role = Column(String, default="creator")
+    email_verified = Column(Integer, default=0)  # Boolean as 0/1 for SQLite compat
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+    last_login_at = Column(DateTime, nullable=True)
+    metadata_json = Column(Text, default="{}")  # Store metadata as JSON string
+
+
+class DBAPIKey(Base):
+    """SQLAlchemy model for api_keys table."""
+    __tablename__ = "api_keys"
+    
+    key_id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.user_id"))
+    key_hash = Column(String, unique=True, index=True)
+    key_prefix = Column(String)
+    name = Column(String)
+    status = Column(String, default="active")
+    permissions = Column(Text, default="read,write")  # CSV string
+    rate_limit = Column(Integer, default=60)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)
+    last_used_at = Column(DateTime, nullable=True)
+    usage_count = Column(Integer, default=0)
+
+
 # ============== Database Operations ==============
+
 
 def init_db():
     """Initialize database tables."""
     Base.metadata.create_all(bind=engine)
 
 
-def get_db() -> Session:
-    """Get database session (dependency for FastAPI)."""
+def get_db() -> Generator[Session, None, None]:
+    """
+    Get database session (dependency for FastAPI).
+    Ensures safe session handling.
+    """
     db = SessionLocal()
     try:
         yield db
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
 

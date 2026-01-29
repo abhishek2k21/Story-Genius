@@ -34,11 +34,11 @@ export default function App() {
                   <Dashboard />
                 </ProtectedRoute>
               }>
-                <Route index element={<Navigate to="/create" replace />} />
-                <Route path="/create" element={<CreateVideo />} />
-                <Route path="/brand" element={<BrandKits />} />
-                <Route path="/calendar" element={<ContentCalendar />} />
-                <Route path="/analytics" element={<Analytics />} />
+                <Route index element={<Navigate to="create" replace />} />
+                <Route path="create" element={<CreateVideo />} />
+                <Route path="brand" element={<BrandKits />} />
+                <Route path="calendar" element={<ContentCalendar />} />
+                <Route path="analytics" element={<Analytics />} />
               </Route>
 
               {/* Default redirect */}
