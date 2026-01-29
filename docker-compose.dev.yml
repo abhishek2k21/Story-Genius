@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: story-genius-postgres
+    environment:
+      POSTGRES_USER: storygenius
+      POSTGRES_PASSWORD: storygenius_dev
+      POSTGRES_DB: storygenius
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U storygenius" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: story-genius-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: story-genius-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://storygenius:storygenius_dev@postgres:5432/storygenius
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-winged-precept-458206-j1}
+      GOOGLE_CLOUD_LOCATION: ${GOOGLE_CLOUD_LOCATION:-us-central1}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./.story_assets:/app/.story_assets
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: story-genius-celery
+    environment:
+      DATABASE_URL: postgresql+asyncpg://storygenius:storygenius_dev@postgres:5432/storygenius
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-winged-precept-458206-j1}
+    volumes:
+      - ./backend/src:/app/src
+      - ./.story_assets:/app/.story_assets
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A src.tasks.celery_app worker --loglevel=info
+
+volumes:
+  postgres_data:
+  redis_data:
