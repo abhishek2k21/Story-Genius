@@ -12,6 +12,7 @@ celery_app = Celery(
     include=[
         "src.tasks.test_task",
         "src.domains.video_generation.tasks",
+        "src.domains.video_generation.enhanced_tasks",
     ],
 )
 

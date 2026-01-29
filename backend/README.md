@@ -1,48 +1,53 @@
 # Story-Genius Backend v2.0
 
-Refactored backend with clean architecture, async database, and Celery task queue.
-
-## Architecture
-
-```
-backend/src/
-├── core/           # Settings, logging, exceptions, middleware
-├── database/       # Async SQLAlchemy, models
-├── clients/        # Vertex AI, ElevenLabs, Storage
-├── domains/        # Business logic (projects, stories, etc.)
-│   └── projects/   # First domain migrated
-├── tasks/          # Celery async tasks
-├── api/v1/         # REST API endpoints
-└── main.py         # FastAPI app
-```
+AI-powered video generation platform with clean architecture.
 
 ## Quick Start
 
 ```bash
 # Docker (recommended)
-docker-compose -f docker-compose.dev.yml up
+docker-compose -f docker-compose.dev.yml up -d
+cd backend && uvicorn src.main:app --reload
 
-# Or manual
-cd backend && pip install -r requirements.txt
-uvicorn src.main:app --reload
+# Celery worker (separate terminal)
+celery -A src.tasks.celery_app worker --loglevel=info
 ```
 
 ## API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/health` | GET | Basic health check |
-| `/api/v1/health` | GET | Detailed health with DB/Redis |
-| `/api/v1/status` | GET | Status with Celery workers |
-| `/api/v1/projects` | GET | List projects |
-| `/api/v1/projects` | POST | Create project |
-| `/api/v1/projects/{id}` | GET | Get project |
-| `/api/v1/projects/{id}` | PATCH | Update project |
-| `/api/v1/projects/{id}` | DELETE | Delete project |
+| `/health` | GET | Basic health |
+| `/api/v1/health` | GET | Full status |
+| `/api/v1/projects` | CRUD | Project management |
+| `/api/v1/projects/{id}/generate-video` | POST | **Full pipeline** |
+| `/api/v1/stories` | CRUD | Story management |
+| `/api/v1/stories/generate` | POST | AI script generation |
+| `/api/v1/video/jobs` | POST/GET | Video job management |
+| `/api/v1/content/captions` | POST | Caption generation |
+| `/api/v1/content/exports` | POST | Video exports |
+| `/api/v1/analytics/stats` | GET | Usage statistics |
+
+## Architecture
+
+```
+src/
+├── api/v1/         # REST endpoints
+├── core/           # Settings, logging, observability
+├── database/       # Async SQLAlchemy models
+├── clients/        # Vertex AI, ElevenLabs, Storage
+├── domains/        # Business logic (5 domains)
+├── tasks/          # Celery async tasks
+└── utils/video/    # MoviePy utilities
+```
+
+## Video Pipeline
+
+```
+Prompt → Gemini Script → [Imagen Ref + ElevenLabs TTS + Veo Video] → MoviePy Stitch → Export
+```
 
 ## Phase Status
-
-- [x] Phase 1: Core skeleton (Days 1-14)
-- [x] Phase 2: Core utilities, DB models, clients (Days 15-28)
-- [x] Phase 3 (partial): API base, projects domain (Days 29-42)
-- [ ] Phase 3 (remaining): stories, video_generation domains
+- [x] Phase 1: Core infrastructure (Days 1-84)
+- [ ] Phase 2: Frontend integration
+- [ ] Phase 3: Deployment
