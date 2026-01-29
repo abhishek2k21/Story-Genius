@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.v1.router import api_router
 from src.core import get_logger, settings
 from src.core.middleware import RequestLoggingMiddleware, setup_exception_handlers
+from src.core.rate_limit import RateLimitMiddleware
+from src.core.validation import InputValidationMiddleware
 from src.database import async_engine
 
 logger = get_logger(__name__)
@@ -34,7 +36,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Middleware
+# Security Middleware (order matters: first added = last executed)
+app.add_middleware(InputValidationMiddleware)
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
