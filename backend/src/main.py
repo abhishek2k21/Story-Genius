@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 
 from src.core import get_logger, settings
 from src.core.exceptions import StoryGeniusError
+from src.core.middleware import RequestLoggingMiddleware, setup_exception_handlers
 from src.database import async_engine
 
 logger = get_logger(__name__)
@@ -34,7 +35,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# Middleware
+app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -42,6 +44,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Exception handlers
+setup_exception_handlers(app)
 
 
 # Exception handlers
