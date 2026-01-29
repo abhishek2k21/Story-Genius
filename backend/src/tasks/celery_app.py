@@ -9,7 +9,10 @@ celery_app = Celery(
     "story_genius",
     broker=settings.celery_broker_url,
     backend=settings.celery_result_backend,
-    include=["src.tasks.test_task"],
+    include=[
+        "src.tasks.test_task",
+        "src.domains.video_generation.tasks",
+    ],
 )
 
 # Celery configuration
