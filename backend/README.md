@@ -2,69 +2,47 @@
 
 Refactored backend with clean architecture, async database, and Celery task queue.
 
-## Architecture Overview
+## Architecture
 
 ```
 backend/src/
-├── core/               # Settings, logging, exceptions
-│   ├── settings.py     # Pydantic settings from env vars
-│   ├── logging.py      # Structured logging
-│   └── exceptions.py   # Custom exception hierarchy
-├── database/           # Async SQLAlchemy
-│   └── session.py      # Async session factory
-├── clients/            # External API wrappers (TODO)
-│   ├── vertex_client.py
-│   ├── elevenlabs_client.py
-│   └── storage_client.py
-├── domains/            # Domain-driven modules (TODO)
-│   ├── projects/
-│   ├── stories/
-│   └── video_generation/
-├── tasks/              # Celery tasks
-│   ├── celery_app.py
-│   └── test_task.py
-└── main.py             # FastAPI application
+├── core/           # Settings, logging, exceptions, middleware
+├── database/       # Async SQLAlchemy, models
+├── clients/        # Vertex AI, ElevenLabs, Storage
+├── domains/        # Business logic (projects, stories, etc.)
+│   └── projects/   # First domain migrated
+├── tasks/          # Celery async tasks
+├── api/v1/         # REST API endpoints
+└── main.py         # FastAPI app
 ```
 
 ## Quick Start
 
-### Local Development (without Docker)
-
 ```bash
-cd backend
-poetry install
-poetry run uvicorn src.main:app --reload
-```
-
-### Docker Development
-
-```bash
-# From project root
+# Docker (recommended)
 docker-compose -f docker-compose.dev.yml up
+
+# Or manual
+cd backend && pip install -r requirements.txt
+uvicorn src.main:app --reload
 ```
 
-### Health Check
+## API Endpoints
 
-```bash
-curl http://localhost:8000/health
-curl http://localhost:8000/api/v1/health
-```
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Basic health check |
+| `/api/v1/health` | GET | Detailed health with DB/Redis |
+| `/api/v1/status` | GET | Status with Celery workers |
+| `/api/v1/projects` | GET | List projects |
+| `/api/v1/projects` | POST | Create project |
+| `/api/v1/projects/{id}` | GET | Get project |
+| `/api/v1/projects/{id}` | PATCH | Update project |
+| `/api/v1/projects/{id}` | DELETE | Delete project |
 
-## Environment Variables
+## Phase Status
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DATABASE_URL` | `postgresql+asyncpg://...` | Async Postgres URL |
-| `REDIS_URL` | `redis://localhost:6379/0` | Redis connection |
-| `CELERY_BROKER_URL` | `redis://localhost:6379/1` | Celery broker |
-| `GOOGLE_CLOUD_PROJECT` | `winged-precept-458206-j1` | GCP project |
-| `DEBUG` | `false` | Enable debug mode |
-
-## Phase 1 Status
-
-- [x] Core skeleton (settings, logging, exceptions)
-- [x] Async database session
-- [x] Celery configuration
-- [x] Health endpoints
-- [ ] Clients (Vertex, ElevenLabs)
-- [ ] Domains (projects, stories, video_generation)
+- [x] Phase 1: Core skeleton (Days 1-14)
+- [x] Phase 2: Core utilities, DB models, clients (Days 15-28)
+- [x] Phase 3 (partial): API base, projects domain (Days 29-42)
+- [ ] Phase 3 (remaining): stories, video_generation domains
