@@ -85,3 +85,11 @@ secrets/
 # Generated
 *.pyc
 .gemini/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Executables
+*.exe

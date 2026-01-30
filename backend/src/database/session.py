@@ -71,3 +71,7 @@ async def session_context() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
+
+
+# Alias for backward compatibility
+async_session_context = session_context

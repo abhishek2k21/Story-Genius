@@ -199,6 +199,7 @@ class VertexClient:
         """
         try:
             from google.cloud import aiplatform
+            from tenacity import retry, stop_after_attempt, wait_exponential
 
             # Start video generation operation
             logger.info(f"Starting Veo generation: {prompt[:50]}...")
@@ -206,14 +207,14 @@ class VertexClient:
             # Initialize the video generation
             parent = f"projects/{self.project_id}/locations/{self.location}"
 
-            # Note: This is a simplified version - actual Veo API may differ
-            # The real implementation would use the Veo SDK when available
-            def _generate_video():
+            # Retry logic for Veo generation
+            @retry(
+                wait=wait_exponential(multiplier=1, min=4, max=10),
+                stop=stop_after_attempt(3),
+                reraise=True
+            )
+            def _generate_video_with_retry():
                 # Placeholder for actual Veo API call
-                # In production, this would:
-                # 1. Submit generation request
-                # 2. Poll for completion
-                # 3. Download result
                 import time
 
                 # Simulated polling
@@ -234,7 +235,7 @@ class VertexClient:
                 veo.generate_video(prompt, output_path)
                 return output_path
 
-            result = await asyncio.get_event_loop().run_in_executor(None, _generate_video)
+            result = await asyncio.get_event_loop().run_in_executor(None, _generate_video_with_retry)
             logger.info(f"Veo generation complete: {result}")
             return result
 

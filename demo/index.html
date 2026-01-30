@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story-Genius Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #f093fb, #f5576c, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+        }
+
+        .demo-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 1rem;
+            resize: none;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .style-btn {
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .style-btn:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+
+        .style-btn.selected {
+            border-color: #f5576c;
+            background: rgba(245,87,108,0.2);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245,87,108,0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 20px;
+        }
+
+        .step-list {
+            list-style: none;
+        }
+
+        .step-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .step-item.active {
+            opacity: 1;
+            background: rgba(79,172,254,0.2);
+            border-left: 3px solid #4facfe;
+        }
+
+        .step-item.completed {
+            opacity: 1;
+            background: rgba(0,200,83,0.2);
+            border-left: 3px solid #00c853;
+        }
+
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .step-item.active .step-icon {
+            background: #4facfe;
+            animation: pulse 1s infinite;
+        }
+
+        .step-item.completed .step-icon {
+            background: #00c853;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .video-preview {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-preview::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" fill="%23ffffff20"/><polygon points="45,40 45,60 65,50" fill="%23fff"/></svg>') center/80px no-repeat;
+        }
+
+        .video-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .video-info span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .success-badge {
+            display: inline-block;
+            padding: 10px 25px;
+            background: linear-gradient(90deg, #00c853, #69f0ae);
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .api-preview {
+            margin-top: 30px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .api-preview h3 {
+            color: #4facfe;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .api-preview pre {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: #69f0ae;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Story-Genius</h1>
+            <p class="subtitle">AI-Powered Video Generation Demo</p>
+        </header>
+
+        <div class="demo-card">
+            <div class="input-section">
+                <label>Enter your video prompt:</label>
+                <textarea id="prompt" rows="3" placeholder="A magical journey through an enchanted forest with glowing butterflies and ancient trees...">A magical journey through an enchanted forest with glowing butterflies and ancient trees</textarea>
+            </div>
+
+            <div class="input-section">
+                <label>Select a style:</label>
+                <div class="style-grid">
+                    <button class="style-btn selected" data-style="pixar">🎨 Pixar</button>
+                    <button class="style-btn" data-style="anime">🌸 Anime</button>
+                    <button class="style-btn" data-style="cinematic">🎬 Cinematic</button>
+                    <button class="style-btn" data-style="disney">✨ Disney</button>
+                    <button class="style-btn" data-style="watercolor">🖌️ Watercolor</button>
+                    <button class="style-btn" data-style="scifi">🚀 Sci-Fi</button>
+                </div>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">Generate Video</button>
+
+            <div class="progress-section" id="progressSection">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <p class="progress-text" id="progressText">Initializing...</p>
+
+                <ul class="step-list">
+                    <li class="step-item" id="step1">
+                        <span class="step-icon">1</span>
+                        <span>Generating script with Gemini AI...</span>
+                    </li>
+                    <li class="step-item" id="step2">
+                        <span class="step-icon">2</span>
+                        <span>Creating reference images (Imagen)...</span>
+                    </li>
+                    <li class="step-item" id="step3">
+                        <span class="step-icon">3</span>
+                        <span>Generating voice narration (ElevenLabs)...</span>
+                    </li>
+                    <li class="step-item" id="step4">
+                        <span class="step-icon">4</span>
+                        <span>Rendering video scenes (Veo)...</span>
+                    </li>
+                    <li class="step-item" id="step5">
+                        <span class="step-icon">5</span>
+                        <span>Stitching & adding effects (MoviePy)...</span>
+                    </li>
+                    <li class="step-item" id="step6">
+                        <span class="step-icon">6</span>
+                        <span>Exporting final video...</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="success-badge">✅ Video Generated!</div>
+                <div class="video-preview"></div>
+                <div class="video-info">
+                    <span>📹 1080p</span>
+                    <span>⏱️ 30 seconds</span>
+                    <span>🎨 Pixar Style</span>
+                </div>
+
+                <div class="api-preview">
+                    <h3>📡 API Response</h3>
+                    <pre id="apiResponse"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const styleBtns = document.querySelectorAll('.style-btn');
+        const generateBtn = document.getElementById('generateBtn');
+        const progressSection = document.getElementById('progressSection');
+        const resultSection = document.getElementById('resultSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        let selectedStyle = 'pixar';
+
+        styleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                styleBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedStyle = btn.dataset.style;
+            });
+        });
+
+        generateBtn.addEventListener('click', async () => {
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt.trim()) return;
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            progressSection.classList.add('active');
+            resultSection.classList.remove('active');
+
+            // Reset steps
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`step${i}`).classList.remove('active', 'completed');
+            }
+
+            const steps = [
+                { id: 'step1', text: 'Generating script...', progress: 15 },
+                { id: 'step2', text: 'Creating reference images...', progress: 30 },
+                { id: 'step3', text: 'Generating voice narration...', progress: 45 },
+                { id: 'step4', text: 'Rendering video scenes...', progress: 70 },
+                { id: 'step5', text: 'Stitching video...', progress: 90 },
+                { id: 'step6', text: 'Exporting...', progress: 100 },
+            ];
+
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                document.getElementById(step.id).classList.add('active');
+                progressBar.style.width = step.progress + '%';
+                progressText.textContent = step.text + ' ' + step.progress + '%';
+
+                await new Promise(r => setTimeout(r, 1200));
+
+                document.getElementById(step.id).classList.remove('active');
+                document.getElementById(step.id).classList.add('completed');
+            }
+
+            // Show result
+            progressSection.classList.remove('active');
+            resultSection.classList.add('active');
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate Another Video';
+
+            // Update API response
+            document.getElementById('apiResponse').textContent = JSON.stringify({
+                status: "completed",
+                job_id: "job_" + Math.random().toString(36).substr(2, 9),
+                video_path: "/media/videos/" + Date.now() + ".mp4",
+                duration: 30,
+                style: selectedStyle,
+                prompt: prompt.substring(0, 50) + "...",
+                thumbnail: "/media/thumbnails/" + Date.now() + ".jpg"
+            }, null, 2);
+        });
+    </script>
+</body>
+</html>

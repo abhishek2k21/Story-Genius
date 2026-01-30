@@ -61,7 +61,7 @@ class Story(Base, UUIDMixin, TimestampMixin):
     # Metadata
     style_prefix: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     voice_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    metadata: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    extra_data: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
 
     # Quality scores
     quality_score: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
@@ -108,8 +108,8 @@ class Scene(Base, UUIDMixin, TimestampMixin):
     # Timing
     duration_seconds: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
-    # Metadata
-    metadata: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    # Extra data
+    extra_data: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
 
     # Relationship
     story: Mapped["Story"] = relationship("Story", back_populates="scenes")

@@ -29,11 +29,11 @@ from src.domains.stories.repositories import SceneRepository, StoryRepository
 logger = get_logger(__name__)
 
 # Prompt template for Gemini
-SCRIPT_GENERATION_PROMPT = """You are a professional short-form video scriptwriter. Generate a compelling video script based on the user's prompt.
+SCRIPT_GENERATION_PROMPT = """You are a professional short-form video scriptwriter. Generate a detailed, engaging video script based on the user's prompt.
 
 USER PROMPT: {prompt}
 
-TARGET DURATION: {target_duration} seconds
+TARGET DURATION: {target_duration} seconds (approx. 150-250 words total)
 NUMBER OF SCENES: {num_scenes}
 
 Generate a JSON response with the following structure:
@@ -42,7 +42,7 @@ Generate a JSON response with the following structure:
     "scenes": [
         {{
             "scene_number": 1,
-            "narration": "Voice-over text for this scene (2-3 sentences)",
+            "narration": "Detailed voice-over text for this scene (4-5 sentences, descriptive language)",
             "visual_description": "Detailed visual description for video generation",
             "duration_seconds": 8.0
         }}
@@ -51,7 +51,8 @@ Generate a JSON response with the following structure:
 }}
 
 Requirements:
-- Each scene narration should be 2-3 concise sentences
+- Narration should be detailed and descriptive (aim for 150-250 words total)
+- Each scene should have 4-5 sentences of narration
 - Visual descriptions should be cinematic and detailed
 - Total duration should match the target
 - Create smooth narrative flow between scenes

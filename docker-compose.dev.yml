@@ -3,15 +3,15 @@ services:
     image: postgres:16-alpine
     container_name: story-genius-postgres
     environment:
-      POSTGRES_USER: storygenius
-      POSTGRES_PASSWORD: storygenius_dev
-      POSTGRES_DB: storygenius
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: story_genius
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U storygenius" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -35,12 +35,13 @@ services:
       dockerfile: Dockerfile
     container_name: story-genius-backend
     environment:
-      DATABASE_URL: postgresql+asyncpg://storygenius:storygenius_dev@postgres:5432/storygenius
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/story_genius
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
-      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-winged-precept-458206-j1}
-      GOOGLE_CLOUD_LOCATION: ${GOOGLE_CLOUD_LOCATION:-us-central1}
+      GOOGLE_CLOUD_PROJECT: winged-precept-458206-j1
+      GOOGLE_CLOUD_LOCATION: us-central1
+      ELEVENLABS_API_KEY: sk_8ae3d07aba833f94ddf47ba6d4de5de635c8fcf9508837d6
     ports:
       - "8000:8000"
     volumes:
